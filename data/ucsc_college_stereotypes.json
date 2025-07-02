@@ -1,0 +1,52 @@
+[
+  {
+    "name": "Cowell",
+    "stereotype": "Friendly, open-minded, social, and a bit quirky. Appreciates tradition, community, and the arts.",
+    "housing_quality": "Classic dorms with beautiful views of the bay; older but well-maintained."
+  },
+  {
+    "name": "Stevenson",
+    "stereotype": "Thoughtful, academically driven, and community-oriented. Known for its strong core course and social sciences focus.",
+    "housing_quality": "Traditional dorms, close-knit community, central location."
+  },
+  {
+    "name": "Crown",
+    "stereotype": "Tech-savvy, ambitious, collaborative, and STEM-focused. Many gamers and coders.",
+    "housing_quality": "Suite-style housing, some of the best views on campus, close to science buildings."
+  },
+  {
+    "name": "Merrill",
+    "stereotype": "Passionate about social justice, diversity, and global issues. Activist and inclusive community.",
+    "housing_quality": "Suite-style housing, unique architecture, close to the woods."
+  },
+  {
+    "name": "Porter",
+    "stereotype": "Creative, artistic, free-spirited, and expressive. Lots of musicians, artists, and performers.",
+    "housing_quality": "Spacious dorms and apartments, art studios, and a vibrant quad."
+  },
+  {
+    "name": "Kresge",
+    "stereotype": "Independent, alternative, quirky, and community-minded. Progressive and experimental.",
+    "housing_quality": "Recently renovated, modern apartments and townhouses, unique layout."
+  },
+  {
+    "name": "Oakes",
+    "stereotype": "Welcoming, supportive, and passionate about diversity, social justice, and community service.",
+    "housing_quality": "Apartments and dorms with a strong community feel, beautiful forest surroundings."
+  },
+  {
+    "name": "Rachel Carson",
+    "stereotype": "Outdoorsy, eco-conscious, and interested in science and policy. Focused on environmentalism and sustainability.",
+    "housing_quality": "Modern, sustainable dorms and apartments, close to science hill."
+  },
+  {
+    "name": "College Nine",
+    "stereotype": "Globally minded, academically focused, and interested in international issues. Diverse and nerdy.",
+    "housing_quality": "Newest dorms and apartments, modern amenities, international theme."
+  },
+  {
+    "name": "John R. Lewis (College Ten)",
+    "stereotype": "Progressive, activist, passionate about leadership, equity, and social change.",
+    "housing_quality": "Newest and most modern housing on campus, large apartments, and community spaces."
+  }
+] 

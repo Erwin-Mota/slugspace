@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalize - SlugConnect</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+        .personalize-header {
+            margin-top: 4rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(-40px);
+            animation: slideDown 1s cubic-bezier(.77,0,.18,1) 0.2s forwards;
+        }
+        @keyframes slideDown {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .personalize-header h1 {
+            color: #fff;
+            font-size: 2.3rem;
+            font-weight: 800;
+            letter-spacing: 0.01em;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 4px 24px rgba(44,62,80,0.18);
+            font-family: 'Inter', Arial, sans-serif;
+        }
+        .personalize-header p {
+            color: #e0e6ed;
+            font-size: 1.15rem;
+            font-weight: 400;
+            margin: 0 auto;
+            max-width: 500px;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+        .tag-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: center;
+            margin: 2rem auto 2.5rem auto;
+            max-width: 900px;
+        }
+        .tag {
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            background: #764ba2;
+            color: #fff;
+            border: 2px solid #e0e6ed;
+            font-weight: 500;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+            user-select: none;
+            will-change: background, color, border-color;
+        }
+        .tag.selected {
+            background: #667eea;
+            color: #fff;
+            border-color: #667eea;
+        }
+        .save-btn {
+            display: block;
+            margin: 2.5rem auto 0 auto;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 0.9rem 2.5rem;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.13);
+        }
+        .save-btn:hover {
+            background: linear-gradient(45deg, #f093fb, #667eea);
+            transform: translateY(-2px);
+        }
+        .back-link {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        .back-link:hover {
+            transform: translateX(-5px);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <a href="intro.html" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Back to Home
+    </a>
+    <div class="personalize-header">
+        <h1>Personalize Your Experience</h1>
+        <p>Select your hobbies and academic interests. We'll use these to recommend the best clubs for you!</p>
+    </div>
+    <div class="tag-grid" id="tagGrid">
+        
+    </div>
+    <button class="save-btn" id="saveBtn">Continue</button>
+    <script>
+        const tags = [
+            // UCSC Majors (sample, can be expanded)
+            'Anthropology', 'Applied Linguistics', 'Art', 'Art & Design: Games & Playable Media', 'Biochemistry', 'Bioengineering', 'Biology', 'Biomolecular Engineering', 'Business Management Economics', 'Chemistry', 'Cognitive Science', 'Community Studies', 'Computer Engineering', 'Computer Science', 'Critical Race & Ethnic Studies', 'Earth Sciences', 'Ecology & Evolution', 'Economics', 'Education', 'Electrical Engineering', 'Environmental Studies', 'Feminist Studies', 'Film & Digital Media', 'Games & Playable Media', 'Global & Community Health', 'History', 'Human Biology', 'Language Studies', 'Legal Studies', 'Linguistics', 'Literature', 'Marine Biology', 'Mathematics', 'Microbiology', 'Molecular, Cell & Developmental Biology', 'Music', 'Network & Digital Technology', 'Philosophy', 'Physics', 'Plant Sciences', 'Politics', 'Psychology', 'Robotics Engineering', 'Sociology', 'Spanish Studies', 'Statistics', 'Theater Arts',
+            // Hobbies & Interests
+            'Music', 'Dance', 'Theater', 'Photography', 'Film', 'Writing', 'Poetry', 'Painting', 'Drawing', 'Coding', 'Robotics', 'Gaming', 'Sports', 'Basketball', 'Soccer', 'Tennis', 'Swimming', 'Outdoors', 'Hiking', 'Camping', 'Volunteering', 'Entrepreneurship', 'Business', 'Languages', 'Cooking', 'Health', 'Environment', 'Politics', 'History', 'Science', 'Math', 'Engineering', 'Astronomy', 'Debate', 'Public Speaking', 'Student Government', 'Cultural Clubs', 'Social Justice', 'Sustainability', 'Startups', 'Investment', 'Chess', 'Board Games', 'Travel', 'Fashion', 'Meditation', 'Yoga', 'Fitness', 'Animal Welfare', 'Community Service',
+            // Religion
+            'Christianity', 'Judaism', 'Islam', 'Buddhism', 'Hinduism', 'Atheism', 'Agnostic', 'Spirituality', 'Interfaith',
+            // More Sports
+            'Baseball', 'Softball', 'Track and Field', 'Cross Country', 'Ultimate Frisbee', 'Volleyball', 'Rowing', 'Surfing', 'Skateboarding', 'Martial Arts', 'Rock Climbing', 'Cycling', 'Running', 'Golf', 'Lacrosse', 'Rugby', 'Fencing', 'Table Tennis', 'Badminton', 'Dance Team', 'Cheer', 'Esports'
+        ];
+        const selectedTags = new Set();
+        const tagGrid = document.getElementById('tagGrid');
+
+        // Render tags
+        tags.forEach(tag => {
+            const tagEl = document.createElement('div');
+            tagEl.className = 'tag';
+            tagEl.textContent = tag;
+            tagEl.onclick = () => {
+                tagEl.classList.toggle('selected');
+                if (selectedTags.has(tag)) {
+                    selectedTags.delete(tag);
+                } else {
+                    selectedTags.add(tag);
+                }
+            };
+            tagGrid.appendChild(tagEl);
+        });
+
+        document.getElementById('saveBtn').onclick = () => {
+            // Save selected tags to localStorage and redirect to confirmation page
+            localStorage.setItem('selectedTags', JSON.stringify(Array.from(selectedTags)));
+            window.location.href = 'confirm-tags.html';
+        };
+
+        // Example fetch for JSON data
+        fetch('data/ucsc_college_stereotypes.json')
+          .then(response => response.json())
+          .then(data => {
+            // Use your data here
+            console.log(data);
+          });
+    </script>
+</body>
+</html>

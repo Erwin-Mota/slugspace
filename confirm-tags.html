@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Your Tags - SlugConnect</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+        .confirm-container {
+            max-width: 600px;
+            margin: 4rem auto 0 auto;
+            padding: 2.5rem 2rem 2rem 2rem;
+            border-radius: 24px;
+            background: rgba(255,255,255,0.97);
+            box-shadow: 0 8px 32px rgba(102,126,234,0.12);
+            text-align: center;
+        }
+        .confirm-container h1 {
+            color: #2c3e50;
+            font-size: 2.1rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+        .confirm-container p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        .tag {
+            padding: 0.5rem 1.1rem;
+            border-radius: 20px;
+            background: #764ba2;
+            color: #fff;
+            border: 2px solid #667eea;
+            font-weight: 500;
+            font-size: 1rem;
+            user-select: none;
+        }
+        .save-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 0.9rem 2.5rem;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.13);
+        }
+        .save-btn:hover {
+            background: linear-gradient(45deg, #f093fb, #667eea);
+            transform: translateY(-2px);
+        }
+        .back-link {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            color: #764ba2;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        .back-link:hover {
+            transform: translateX(-5px);
+            text-shadow: 0 0 10px rgba(118, 75, 162, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <a href="personalize.html" class="back-link">
+        <span style="font-size:1.2rem;">&#8592;</span> Back to Personalize
+    </a>
+    <div class="confirm-container">
+        <h1>Confirm Your Tags</h1>
+        <p>Do these tags look correct? If so, click Save to continue.</p>
+        <div class="tag-list" id="tagList"></div>
+        <button class="save-btn" id="saveBtn">Save</button>
+        <div id="saveMsg" style="margin-top:1.5rem;color:#667eea;font-weight:600;display:none;">Your tags have been saved!</div>
+    </div>
+    <script>
+        // Load tags from localStorage
+        let tags = [];
+        try {
+            tags = JSON.parse(localStorage.getItem('selectedTags')) || [];
+        } catch (e) {
+            tags = [];
+        }
+        const tagList = document.getElementById('tagList');
+        if (tags.length === 0) {
+            tagList.innerHTML = '<span style="color:#b00">No tags selected. Go back and pick some!</span>';
+        } else {
+            tags.forEach(tag => {
+                const tagEl = document.createElement('div');
+                tagEl.className = 'tag';
+                tagEl.textContent = tag;
+                tagList.appendChild(tagEl);
+            });
+        }
+        document.getElementById('saveBtn').onclick = () => {
+            // Save tags to localStorage (already done, but reconfirm)
+            localStorage.setItem('selectedTags', JSON.stringify(tags));
+            document.getElementById('saveMsg').style.display = 'block';
+            setTimeout(() => {
+                window.location.href = 'intro.html';
+            }, 1200);
+        };
+    </script>
+</body>
+</html> 
