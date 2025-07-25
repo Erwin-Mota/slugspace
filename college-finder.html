@@ -10,7 +10,7 @@
     <style>
         body {
             min-height: 100vh;
-            background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+            background: linear-gradient(135deg, #00274C 0%, #FFCB05 100%); /* Navy blue to yellow */
             margin: 0;
             font-family: 'Inter', Arial, sans-serif;
         }
@@ -18,16 +18,16 @@
             margin-top: 4rem;
             margin-bottom: 2rem;
             text-align: center;
-            color: #fff;
+            color: #FFCB05; /* UCSC yellow */
         }
         .finder-header h1 {
             font-size: 2.3rem;
             font-weight: 800;
             margin-bottom: 0.5rem;
-            text-shadow: 0 4px 24px rgba(44,62,80,0.18);
+            text-shadow: 0 4px 24px rgba(0,39,76,0.18);
         }
         .finder-header p {
-            color: #e0e6ed;
+            color: #fffde4;
             font-size: 1.15rem;
             font-weight: 400;
             margin: 0 auto;
@@ -39,50 +39,25 @@
             align-items: center;
             margin-bottom: 2.5rem;
         }
-        .finder-textarea {
-            width: 90%;
-            max-width: 600px;
-            min-height: 120px;
-            border-radius: 16px;
-            border: 2px solid #e0e6ed;
-            padding: 1.2rem;
-            font-size: 1.1rem;
-            font-family: 'Inter', Arial, sans-serif;
-            margin-bottom: 1.5rem;
-            resize: vertical;
-            background: rgba(255,255,255,0.85);
-            transition: border 0.2s;
-        }
-        .finder-textarea:focus {
-            border-color: #43cea2;
-            outline: none;
-        }
         .finder-btn {
-            background: linear-gradient(45deg, #43cea2, #185a9d);
-            color: #fff;
+            background: linear-gradient(45deg, #00274C, #FFCB05);
+            color: #00274C;
             border: none;
             border-radius: 20px;
-            padding: 0.9rem 2.5rem;
-            font-size: 1.15rem;
-            font-weight: 700;
+            padding: 1.1rem 3rem;
+            font-size: 1.25rem;
+            font-weight: 800;
             cursor: pointer;
             transition: background 0.2s, transform 0.2s;
-            box-shadow: 0 4px 15px rgba(67, 206, 162, 0.13);
+            box-shadow: 0 4px 15px rgba(0, 39, 76, 0.13);
+            margin-top: 1.5rem;
         }
         .finder-btn:hover {
-            background: linear-gradient(45deg, #43cea2, #63a4ff);
+            background: linear-gradient(45deg, #FFCB05, #00274C);
+            color: #FFCB05;
             transform: translateY(-2px);
         }
         .result-box {
-            margin: 2.5rem auto 2rem auto;
-            padding: 1.5rem;
-            border-radius: 18px;
-            background: rgba(67,206,162,0.08);
-            color: #185a9d;
-            font-size: 1.15rem;
-            font-weight: 500;
-            min-height: 40px;
-            max-width: 600px;
             display: none;
         }
         .college-carousel {
@@ -97,7 +72,7 @@
         .college-card {
             background: rgba(255,255,255,0.85);
             border-radius: 18px;
-            box-shadow: 0 2px 8px rgba(24,90,157,0.10);
+            box-shadow: 0 2px 8px rgba(0,39,76,0.10);
             min-width: 180px;
             max-width: 180px;
             display: flex;
@@ -108,7 +83,7 @@
         }
         .college-card:hover {
             transform: translateY(-6px) scale(1.04);
-            box-shadow: 0 8px 24px rgba(24,90,157,0.18);
+            box-shadow: 0 8px 24px rgba(0,39,76,0.18);
         }
         .college-card img {
             width: 100%;
@@ -119,7 +94,7 @@
         }
         .college-card span {
             font-weight: 700;
-            color: #185a9d;
+            color: #00274C;
             font-size: 1.05rem;
             text-align: center;
         }
@@ -127,7 +102,7 @@
             position: absolute;
             top: 2rem;
             left: 2rem;
-            color: white;
+            color: #FFCB05;
             text-decoration: none;
             font-weight: 600;
             display: flex;
@@ -138,7 +113,7 @@
         }
         .back-link:hover {
             transform: translateX(-5px);
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            text-shadow: 0 0 10px rgba(255, 203, 5, 0.5);
         }
     </style>
 </head>
@@ -152,7 +127,6 @@
         <p>Tell us about yourself, your interests, and your major. The more you share, the better we can match you with a UCSC college!</p>
     </div>
     <div class="finder-form">
-        <textarea class="finder-textarea" id="finderInput" placeholder="Type who you are as a person, your interests, and your major..."></textarea>
         <button class="finder-btn" id="finderBtn">Find My College</button>
     </div>
     <div class="result-box" id="resultBox"></div>
@@ -194,22 +168,8 @@
             }
         }, 20);
 
-        document.getElementById('finderBtn').onclick = async () => {
-            const input = document.getElementById('finderInput').value.trim();
-            const resultBox = document.getElementById('resultBox');
-            if (!input) {
-                resultBox.style.display = 'block';
-                resultBox.textContent = 'Please describe yourself to get a recommendation.';
-                return;
-            }
-            resultBox.style.display = 'block';
-            resultBox.textContent = 'Analyzing your response...';
-            // Example fetch for JSON data
-            fetch('data/ucsc_college_stereotypes.json')
-                .then(response => response.json())
-                .then(data => {
-                    resultBox.textContent = 'Sample result: ' + data[0].stereotype;
-                });
+        document.getElementById('finderBtn').onclick = () => {
+            window.location.href = 'college-survey.html';
         };
     </script>
 </body>
