@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Groups - SlugConnect</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .study-groups-container {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            color: white;
+        }
+
+        .study-groups-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            opacity: 0;
+            transform: translateY(-40px);
+            animation: slideDown 1s cubic-bezier(.77,0,.18,1) 0.2s forwards;
+        }
+
+        @keyframes slideDown {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .study-groups-header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .study-groups-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .back-link:hover {
+            transform: translateX(-5px);
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .departments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .department-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .department-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .department-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #ffd200;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            border-bottom: 2px solid rgba(255, 210, 0, 0.3);
+            padding-bottom: 0.5rem;
+        }
+
+        .course-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .course-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .course-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .course-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .course-code {
+            font-weight: 700;
+            color: #ffd200;
+            font-size: 1.1rem;
+        }
+
+        .course-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .course-description {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .course-details {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            opacity: 0.7;
+        }
+
+        .join-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .join-btn:hover {
+            background: linear-gradient(45deg, #45a049, #4CAF50);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .leave-btn {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .leave-btn:hover {
+            background: linear-gradient(45deg, #d32f2f, #f44336);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
+        }
+
+        .members-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+
+        .members-count {
+            background: rgba(255, 210, 0, 0.2);
+            color: #ffd200;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .search-bar {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 500px;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.9);
+            color: black;
+            font-size: 1rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .search-input::placeholder {
+            color: rgba(0, 0, 0, 0.5);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #ffd200;
+            box-shadow: 0 0 15px rgba(255, 210, 0, 0.3);
+        }
+
+        .no-results {
+            text-align: center;
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .departments-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .study-groups-header h1 {
+                font-size: 2rem;
+            }
+            
+            .back-link {
+                position: relative;
+                top: auto;
+                left: auto;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="study-groups-container">
+        <a href="intro.html" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Back to Home
+        </a>
+
+        <div class="study-groups-header">
+            <h1>Study Groups</h1>
+            <p>Join study groups for your courses and connect with classmates. Find groups by department or search for specific courses.</p>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" class="search-input" placeholder="Search for a class" id="searchInput">
+        </div>
+
+        <div class="departments-grid" id="departmentsGrid">
+            <!-- Departments will be loaded here -->
+        </div>
+
+        <div class="no-results" id="noResults" style="display: none;">
+            No courses found matching your search.
+        </div>
+    </div>
+
+    <script>
+        let allDepartments = [];
+        let joinedGroups = JSON.parse(localStorage.getItem('joinedStudyGroups') || '[]');
+
+        // Load courses from JSON file
+        fetch('data/ucsc_courses.json')
+            .then(response => response.json())
+            .then(data => {
+                allDepartments = data;
+                renderDepartments(data);
+            })
+            .catch(error => {
+                console.error('Error loading courses:', error);
+                document.getElementById('departmentsGrid').innerHTML = 
+                    '<div style="text-align: center; color: white; font-size: 1.2rem;">Error loading courses. Please try again later.</div>';
+            });
+
+        function renderDepartments(departments) {
+            const grid = document.getElementById('departmentsGrid');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            // If search is empty, show all departments
+            if (searchTerm === '') {
+                const allDepartmentsHTML = departments.map(dept => `
+                    <div class="department-section">
+                        <h2 class="department-title">${dept.department}</h2>
+                        <div class="course-list">
+                            ${dept.courses.map(course => {
+                                const isJoined = joinedGroups.includes(course.code);
+                                const memberCount = Math.floor(Math.random() * 15) + 1;
+                                return `
+                                    <div class="course-item">
+                                        <div class="course-header">
+                                            <span class="course-code">${course.code}</span>
+                                            <button class="${isJoined ? 'leave-btn' : 'join-btn'}" 
+                                                    onclick="toggleStudyGroup('${course.code}')">
+                                                ${isJoined ? 'Leave Group' : 'Join Group'}
+                                            </button>
+                                        </div>
+                                        <h3 class="course-name">${course.name}</h3>
+                                        <p class="course-description">${course.description}</p>
+                                        <div class="course-details">
+                                            <span>${course.credits} credits</span>
+                                            <span>•</span>
+                                            <span>${course.level} division</span>
+                                            <span>•</span>
+                                            <span>${course.quarters_offered.join(', ')}</span>
+                                        </div>
+                                        <div class="members-info">
+                                            <i class="fas fa-users"></i>
+                                            <span>${memberCount} members</span>
+                                            <span class="members-count">${isJoined ? 'You joined' : ''}</span>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('noResults').style.display = 'none';
+                grid.innerHTML = allDepartmentsHTML;
+                return;
+            }
+            
+            // Filter departments and courses based on search term
+            const filteredDepartments = departments.filter(dept => {
+                const deptName = dept.department.toLowerCase();
+                const courses = dept.courses.filter(course => {
+                    const courseCode = course.code.toLowerCase();
+                    const courseName = course.name.toLowerCase();
+                    const courseDesc = course.description.toLowerCase();
+                    const deptNameLower = dept.department.toLowerCase();
+                    
+                    return courseCode.includes(searchTerm) || 
+                           courseName.includes(searchTerm) || 
+                           courseDesc.includes(searchTerm) ||
+                           deptNameLower.includes(searchTerm);
+                });
+                return courses.length > 0;
+            });
+
+            if (filteredDepartments.length === 0) {
+                document.getElementById('noResults').style.display = 'block';
+                grid.innerHTML = '';
+                return;
+            } else {
+                document.getElementById('noResults').style.display = 'none';
+            }
+
+            grid.innerHTML = filteredDepartments.map(dept => `
+                <div class="department-section">
+                    <h2 class="department-title">${dept.department}</h2>
+                    <div class="course-list">
+                        ${dept.courses.filter(course => {
+                            const courseCode = course.code.toLowerCase();
+                            const courseName = course.name.toLowerCase();
+                            const courseDesc = course.description.toLowerCase();
+                            const deptNameLower = dept.department.toLowerCase();
+                            
+                            return courseCode.includes(searchTerm) || 
+                                   courseName.includes(searchTerm) || 
+                                   courseDesc.includes(searchTerm) ||
+                                   deptNameLower.includes(searchTerm);
+                        }).map(course => {
+                            const isJoined = joinedGroups.includes(course.code);
+                            const memberCount = Math.floor(Math.random() * 15) + 1;
+                            return `
+                                <div class="course-item">
+                                    <div class="course-header">
+                                        <span class="course-code">${course.code}</span>
+                                        <button class="${isJoined ? 'leave-btn' : 'join-btn'}" 
+                                                onclick="toggleStudyGroup('${course.code}')">
+                                            ${isJoined ? 'Leave Group' : 'Join Group'}
+                                        </button>
+                                    </div>
+                                    <h3 class="course-name">${course.name}</h3>
+                                    <p class="course-description">${course.description}</p>
+                                    <div class="course-details">
+                                        <span>${course.credits} credits</span>
+                                        <span>•</span>
+                                        <span>${course.level} division</span>
+                                        <span>•</span>
+                                        <span>${course.quarters_offered.join(', ')}</span>
+                                    </div>
+                                    <div class="members-info">
+                                        <i class="fas fa-users"></i>
+                                        <span>${memberCount} members</span>
+                                        <span class="members-count">${isJoined ? 'You joined' : ''}</span>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleStudyGroup(courseCode) {
+            const index = joinedGroups.indexOf(courseCode);
+            if (index > -1) {
+                joinedGroups.splice(index, 1);
+            } else {
+                joinedGroups.push(courseCode);
+            }
+            
+            localStorage.setItem('joinedStudyGroups', JSON.stringify(joinedGroups));
+            renderDepartments(allDepartments);
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                renderDepartments(allDepartments);
+            }
+        });
+    </script>
+</body>
+</html> 
