@@ -1,0 +1,56 @@
+[
+    {
+      "id": "q1",
+      "text": "Friday night energy?",
+      "options": [
+        { "value": "Big dorm rager, let’s gooo",              "tags": ["party","social"] },
+        { "value": "Smash/board-game marathon with the squad","tags": ["introvert","nerdy"] },
+        { "value": "Open-mic, art show, then chill",          "tags": ["artsy","chill"] },
+        { "value": "Night hike / stargazing in the redwoods", "tags": ["nature","outdoors"] },
+        { "value": "Community meeting or protest planning",   "tags": ["activism","social_justice"] }
+      ]
+    },
+    {
+      "id": "q2",
+      "text": "Dream dorm vibe?",
+      "options": [
+        { "value": "Central & lively—steps from dining and parties", "tags": ["party","social"] },
+        { "value": "Modern halls by the engineering labs",           "tags": ["stem","international"] },
+        { "value": "Tree-house feel up on the hill, quiet at night", "tags": ["introvert","nature"] },
+        { "value": "Close to art studios & murals, late-night creatives", "tags": ["artsy","chill"] }
+      ]
+    },
+    {
+      "id": "q3",
+      "text": "Pick the motto that hits:",
+      "options": [
+        { "value": "Code all day, hack all night",      "tags": ["stem","nerdy"] },
+        { "value": "Make art, not excuses",             "tags": ["artsy","creative"] },
+        { "value": "Party hard, study… eventually",     "tags": ["party"] },
+        { "value": "Books, tea, and deep thoughts",     "tags": ["introvert","reflection"] },
+        { "value": "No justice, no peace",              "tags": ["activism"] }
+      ]
+    },
+    {
+      "id": "q4",
+      "text": "Spur-of-the-moment Saturday plan?",
+      "options": [
+        { "value": "Day trip to the beach",               "tags": ["nature","outdoors"] },
+        { "value": "Shiny new makerspace workshop",       "tags": ["stem","innovation"] },
+        { "value": "Painting a campus mural",             "tags": ["artsy"] },
+        { "value": "Volunteering at a voter-reg table",   "tags": ["social_justice","activism"] },
+        { "value": "Couch-locked anime binge",            "tags": ["introvert","nerdy"] }
+      ]
+    },
+    {
+      "id": "q5",
+      "text": "You’d happily live next to…",
+      "options": [
+        { "value": "The loud dining hall & bus hub",          "tags": ["social","party"] },
+        { "value": "Baskin engineering & the esports lounge","tags": ["stem","nerdy"] },
+        { "value": "Redwood forest & hidden hammocks",        "tags": ["nature","introvert"] },
+        { "value": "The koi pond & ceramics studio",          "tags": ["artsy","chill"] }
+      ]
+    }
+  ]
+  

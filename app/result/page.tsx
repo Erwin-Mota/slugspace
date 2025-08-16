@@ -35,6 +35,10 @@ export default function ResultPage() {
     reset();
     router.push('/question/1');
   };
+
+  const handleBackToHome = () => {
+    router.push('/');
+  };
   
   const getMatchingTags = (collegeTags: string[]) => {
     return collegeTags.filter(tag => tags.has(tag));
@@ -124,13 +128,26 @@ export default function ResultPage() {
             </div>
           )}
           
-          <div className="mt-8 text-center">
-            <button
-              onClick={handleStartOver}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200"
-            >
-              Start Over
-            </button>
+          <div className="mt-8 text-center space-y-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <button
+                onClick={handleBackToHome}
+                className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-800 font-bold py-3 px-6 rounded-lg transition-all duration-200 hover:from-yellow-500 hover:to-yellow-600 flex items-center justify-center gap-2"
+              >
+                <i className="fas fa-home"></i>
+                Back to Home
+              </button>
+              <button
+                onClick={handleStartOver}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+              >
+                <i className="fas fa-redo"></i>
+                Start Over
+              </button>
+            </div>
+            <p className="text-gray-600 text-sm">
+              Explore more features on the home page or retake the survey
+            </p>
           </div>
         </QuestionCard>
       </div>
