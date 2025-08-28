@@ -1,27 +1,27 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
-import { SurveyProvider } from '@/lib/SurveyContext';
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import Providers from './providers'
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'UCSC College Matcher',
-  description: 'Find your perfect UCSC college match',
-};
+  title: 'SlugConnect - Your UCSC Community Hub',
+  description: 'Connect with UCSC students, join study groups, discover campus clubs, and find your perfect college match.',
+}
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <SurveyProvider>
+        <Providers>
           {children}
-        </SurveyProvider>
+        </Providers>
       </body>
     </html>
-  );
+  )
 } 

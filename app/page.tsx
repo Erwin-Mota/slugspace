@@ -1,165 +1,186 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { FaGraduationCap, FaUsers, FaHeart, FaCalendarAlt, FaArrowRight, FaHome } from "react-icons/fa";
+import UserProfile from "../components/UserProfile";
 
 export default function HomePage() {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: session, status } = useSession();
 
-  useEffect(() => {
-    setIsLoading(false);
-  }, []);
-
-  if (isLoading) {
+  if (status === "loading") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 to-yellow-400 flex items-center justify-center">
-        <div className="text-center text-white">
-          <h1 className="text-4xl font-bold mb-4">SlugConnect</h1>
-          <p className="text-xl">Loading...</p>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-yellow-600 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-white"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Navigation */}
-      <nav className="bg-gradient-to-r from-gray-800 to-gray-900 text-white p-4 shadow-lg">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <span className="text-2xl font-bold text-white">🐌</span>
-            <span className="text-xl font-bold text-white">SlugConnect</span>
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-yellow-600">
+      {/* 🎯 Navigation Bar */}
+      <nav className="bg-white/10 backdrop-blur-lg border-b border-white/20 px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          {/* 🏆 Logo */}
+          <div className="flex items-center space-x-3">
+            <FaHome className="text-4xl text-yellow-400" />
+            <div>
+              <h1 className="text-2xl font-bold text-white">SlugConnect</h1>
+              <p className="text-blue-100 text-sm">Your UCSC Community Hub</p>
+            </div>
           </div>
-          <div className="flex items-center space-x-6">
-            <button 
-              onClick={() => router.push('/login')}
-              className="bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-lg font-medium text-sm border border-white/20 hover:bg-white/20 hover:border-white/30 transition-all duration-200"
-            >
-              <span className="flex items-center gap-1.5">
-                <span className="text-sm">🔐</span>
-                Login
-              </span>
-            </button>
+
+          {/* 🔐 Authentication */}
+          <div className="flex items-center space-x-4">
+            {session ? (
+              <UserProfile />
+            ) : (
+              <Link
+                href="/login"
+                className="bg-yellow-400 text-gray-800 px-6 py-2 rounded-xl font-semibold hover:bg-yellow-300 transition-colors duration-200"
+              >
+                Log In
+              </Link>
+            )}
           </div>
         </div>
       </nav>
 
-      {/* Main Content */}
-      <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-purple-800 min-h-screen">
-        <div className="container mx-auto px-4 py-16">
-          {/* Hero Section */}
-          <div className="text-center mb-16">
-            <h1 className="text-6xl font-bold text-white mb-6 bg-gradient-to-r from-yellow-300 to-yellow-500 bg-clip-text text-transparent">
-              Find your campus community
-            </h1>
-            <p className="text-xl text-gray-100 max-w-3xl mx-auto leading-relaxed">
-              Discover activities, join study groups, connect with clubs, and find your perfect college match at UCSC. 
-              Your campus community awaits!
-            </p>
-          </div>
-
-          {/* Feature Cards */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-            {/* 1st Box: Personalization */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 shadow-xl flex flex-col">
-              <div className="text-4xl mb-4">⚙️</div>
-              <h3 className="text-xl font-bold text-white mb-3">Personalize</h3>
-              <p className="text-gray-200 mb-6 text-sm flex-grow">
-                Enhanced personalization with categorized interests, visual progress, and smart recommendations.
-              </p>
-              <button 
-                onClick={() => router.push('/personalize')}
-                className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-800 py-2 px-4 rounded-lg font-semibold hover:from-yellow-500 hover:to-yellow-600 transition-all flex items-center justify-center gap-2 mt-auto"
+      {/* 🎨 Main Content */}
+      <main className="max-w-7xl mx-auto px-6 py-12">
+        {/* 🏆 Hero Section */}
+        <div className="text-center mb-16">
+          <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
+            Welcome to SlugConnect
+          </h2>
+          <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
+            Connect with fellow UCSC students, join study groups, discover campus clubs, 
+            and find your perfect college match. Build your community today!
+          </p>
+          
+          {!session && (
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/login"
+                className="bg-yellow-400 text-gray-800 px-8 py-4 rounded-xl font-bold text-lg hover:bg-yellow-300 transition-all duration-200 transform hover:scale-105"
               >
-                <span>Get Started</span>
-              </button>
-            </div>
-
-            {/* 2nd Box: Study Groups */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 shadow-xl flex flex-col">
-              <div className="text-4xl mb-4">📚</div>
-              <h3 className="text-xl font-bold text-white mb-3">Study Groups</h3>
-              <p className="text-gray-200 mb-6 text-sm flex-grow">
-                Join study groups for your classes with our new React-powered interface. Search through 1000+ UCSC courses!
-              </p>
-              <button 
-                onClick={() => router.push('/study-groups')}
-                className="w-full bg-gradient-to-r from-green-400 to-green-500 text-white py-2 px-4 rounded-lg font-semibold hover:from-green-500 hover:to-green-600 transition-all flex items-center justify-center gap-2 mt-auto"
+                Get Started
+              </Link>
+              <Link
+                href="/personalize"
+                className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/10 transition-all duration-200"
               >
-                <span>Browse Groups</span>
-              </button>
+                Learn More
+              </Link>
             </div>
+          )}
+        </div>
 
-            {/* 3rd Box: Campus Clubs */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 shadow-xl flex flex-col">
-              <div className="text-4xl mb-4">🎭</div>
-              <h3 className="text-xl font-bold text-white mb-3">Campus Clubs</h3>
-              <p className="text-gray-200 mb-6 text-sm flex-grow">
-                Discover and join clubs that match your interests. Smart recommendations based on your profile!
-              </p>
-              <button 
-                onClick={() => router.push('/clubs')}
-                className="w-full bg-gradient-to-r from-purple-400 to-purple-500 text-white py-2 px-4 rounded-lg font-semibold hover:from-purple-500 hover:to-purple-600 transition-all flex items-center justify-center gap-2 mt-auto"
-              >
-                <span>Explore Clubs</span>
-              </button>
+        {/* 🎭 Feature Cards */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          <Link
+            href="/personalize"
+            className="group bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 transform hover:scale-105"
+          >
+            <div className="text-center">
+              <FaHeart className="text-4xl text-yellow-400 mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
+              <h3 className="text-xl font-bold text-white mb-2">Personalize</h3>
+              <p className="text-blue-100 text-sm">Tell us about yourself and discover your perfect matches</p>
             </div>
+          </Link>
 
-            {/* 4th Box: College Finder */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 shadow-xl flex flex-col">
-              <div className="text-4xl mb-4">🏠</div>
-              <h3 className="text-xl font-bold text-white mb-3">College Finder</h3>
-              <p className="text-gray-200 mb-6 text-sm flex-grow">
-                Explore UCSC's 10 unique colleges with our beautiful sliding panel, then take the survey to find your perfect match!
-              </p>
-              <button 
-                onClick={() => router.push('/college-finder')}
-                className="w-full bg-gradient-to-r from-blue-400 to-blue-500 text-white py-2 px-4 rounded-lg font-semibold hover:from-blue-500 hover:to-blue-600 transition-all flex items-center justify-center gap-2 mt-auto"
-              >
-                <span>Find My College</span>
-              </button>
+          <Link
+            href="/study-groups"
+            className="group bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 transform hover:scale-105"
+          >
+            <div className="text-center">
+              <FaGraduationCap className="text-4xl text-yellow-400 mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
+              <h3 className="text-xl font-bold text-white mb-2">Study Groups</h3>
+              <p className="text-blue-100 text-sm">Join study groups for your courses and ace your classes</p>
             </div>
-          </div>
+          </Link>
 
-          {/* Additional Features */}
-          <div className="mt-16 text-center">
-            <h2 className="text-3xl font-bold text-white mb-8">More Features</h2>
-            <div className="flex flex-wrap justify-center gap-4">
-              <button 
-                onClick={() => alert('Events feature coming soon! 🎉')}
-                className="bg-white/10 backdrop-blur-lg px-6 py-3 rounded-lg border border-white/20 text-white hover:bg-white/20 transition-all"
-              >
-                🎉 Events
-              </button>
+          <Link
+            href="/clubs"
+            className="group bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 transform hover:scale-105"
+          >
+            <div className="text-center">
+              <FaUsers className="text-4xl text-yellow-400 mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
+              <h3 className="text-xl font-bold text-white mb-2">Campus Clubs</h3>
+              <p className="text-blue-100 text-sm">Discover and join clubs that match your interests</p>
             </div>
-          </div>
+          </Link>
 
-          {/* Tech Stack Info */}
-          <div className="mt-16 bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-white/20 max-w-4xl mx-auto">
-            <h3 className="text-2xl font-bold text-white mb-4 text-center">🚀 Powered by Modern Tech</h3>
-            <div className="grid md:grid-cols-2 gap-6 text-gray-200">
-              <div>
-                <h4 className="font-semibold text-yellow-300 mb-2">Performance Features:</h4>
-                <ul className="text-sm space-y-1">
-                  <li>⚡ Lightning-fast React with TypeScript</li>
-                  <li>🎯 Interactive college matching survey</li>
-                  <li>💾 Smart data persistence</li>
-                  <li>📱 Fully responsive design</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-yellow-300 mb-2">Smart Features:</h4>
-                <ul className="text-sm space-y-1">
-                  <li>🧠 AI-powered recommendations</li>
-                  <li>🎭 Personalized club matching</li>
-                  <li>📚 Advanced study group search</li>
-                  <li>⚙️ Comprehensive interest profiling</li>
-                </ul>
-              </div>
+          <Link
+            href="/college-finder"
+            className="group bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300 transform hover:scale-105"
+          >
+            <div className="text-center">
+              <FaHeart className="text-4xl text-yellow-400 mx-auto mb-4 group-hover:scale-110 transition-transform duration-300" />
+              <h3 className="text-xl font-bold text-white mb-2">College Finder</h3>
+              <p className="text-blue-100 text-sm">Find your perfect UCSC college match</p>
+            </div>
+          </Link>
+        </div>
+
+        {/* 🎯 More Features */}
+        <div className="text-center">
+          <h3 className="text-3xl font-bold text-white mb-8">More Features</h3>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
+              <FaCalendarAlt className="text-3xl text-yellow-400 mx-auto mb-4" />
+              <h4 className="text-xl font-semibold text-white mb-2">Events</h4>
+              <p className="text-blue-100 text-sm">Stay updated with campus events and activities</p>
+            </div>
+            
+            <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
+              <FaUsers className="text-3xl text-yellow-400 mx-auto mb-4" />
+              <h4 className="text-xl font-semibold text-white mb-2">Networking</h4>
+              <p className="text-blue-100 text-sm">Connect with students in your major and interests</p>
+            </div>
+            
+            <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
+              <FaHeart className="text-3xl text-yellow-400 mx-auto mb-4" />
+              <h4 className="text-xl font-semibold text-white mb-2">Recommendations</h4>
+              <p className="text-blue-100 text-sm">Get personalized suggestions based on your profile</p>
             </div>
           </div>
         </div>
+
+        {/* 🚀 Call to Action */}
+        {!session && (
+          <div className="text-center mt-16">
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
+              <h3 className="text-2xl font-bold text-white mb-4">Ready to Connect?</h3>
+              <p className="text-blue-100 mb-6">
+                Join thousands of UCSC students building their community on SlugConnect
+              </p>
+              <Link
+                href="/login"
+                className="inline-flex items-center space-x-2 bg-yellow-400 text-gray-800 px-8 py-4 rounded-xl font-bold text-lg hover:bg-yellow-300 transition-all duration-200 transform hover:scale-105"
+              >
+                <span>Get Started Now</span>
+                <FaArrowRight className="text-lg" />
+              </Link>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* 🌟 Floating Particles */}
+      <div className="fixed inset-0 pointer-events-none">
+        {[...Array(30)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-yellow-300 rounded-full opacity-40 animate-pulse"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animationDelay: `${Math.random() * 3}s`,
+              animationDuration: `${2 + Math.random() * 3}s`
+            }}
+          />
+        ))}
       </div>
     </div>
   );

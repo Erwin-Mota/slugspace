@@ -1,0 +1,147 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 🎓 Core User Model - Secure & Scalable
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  image     String?
+  
+  // 🔐 UCSC Identity
+  ucscId    String?  @unique
+  major     String?
+  year      String?
+  college   String?  // Which UCSC college they're in
+  
+  // 🎭 Personality & Preferences (stored as JSON for flexibility)
+  personalityTraits Json? // hobbies, interests, religion, sports, academic focus
+  
+  // 📚 Academic & Social Connections
+  joinedClubs      ClubMember[]
+  studyGroups      StudyGroupMember[]
+  
+  // 🕒 Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // 🚀 Performance Indexes
+  @@index([email])
+  @@index([ucscId])
+  @@index([major])
+  @@index([college])
+  
+  // 📝 Add some flair to the model name
+  @@map("ucsc_sluggers")
+}
+
+// 🏛️ Club Membership Model
+model ClubMember {
+  id        String   @id @default(cuid())
+  userId    String
+  clubId    String
+  role      String   @default("member") // member, admin, founder
+  joinedAt  DateTime @default(now())
+  
+  // 🔗 Relationships
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  
+  // 🚀 Performance & Constraints
+  @@unique([userId, clubId])
+  @@index([userId])
+  @@index([clubId])
+  
+  // 📝 Add some flair
+  @@map("club_crew")
+}
+
+// 📚 Study Group Membership Model
+model StudyGroupMember {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  role      String   @default("student") // student, tutor, leader
+  joinedAt  DateTime @default(now())
+  
+  // 🔗 Relationships
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  // 🚀 Performance & Constraints
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  
+  // 📝 Add some flair
+  @@map("study_buddies")
+}
+
+// 🎯 Club Model (from your existing JSON data)
+model Club {
+  id          String   @id @default(cuid())
+  name        String
+  category    String
+  description String?
+  contactInfo String?
+  meetingTime String?
+  
+  // 🔗 Relationships
+  members     ClubMember[]
+  
+  // 🚀 Performance
+  @@index([category])
+  @@index([name])
+  
+  // 📝 Add some flair
+  @@map("campus_clubs")
+}
+
+// 📖 Course Model (from your existing JSON data)
+model Course {
+  id          String   @id @default(cuid())
+  code        String   // e.g., "CSE 101"
+  name        String
+  credits     Int?
+  level       String?
+  description String?
+  prerequisites String?
+  quartersOffered String?
+  
+  // 🔗 Relationships
+  studyGroups StudyGroupMember[]
+  
+  // 🚀 Performance
+  @@index([code])
+  @@index([name])
+  @@index([level])
+  
+  // 📝 Add some flair
+  @@map("ucsc_courses")
+}
+
+// 🏠 College Model (from your existing JSON data)
+model College {
+  id            String   @id @default(cuid())
+  name          String   @unique
+  stereotype    String?
+  housingQuality String?
+  funFact       String?
+  vibes         String?
+  imageUrl      String?
+  
+  // 🚀 Performance
+  @@index([name])
+  
+  // 📝 Add some flair
+  @@map("ucsc_colleges")
+}
