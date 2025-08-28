@@ -204,7 +204,7 @@ export default function PersonalizePage() {
             ⚙️ Personalize Your Experience
           </h1>
           <p className="text-xl text-gray-100 max-w-3xl mx-auto leading-relaxed">
-            Tell us about your interests, hobbies, and goals. We'll use this to recommend the perfect clubs, 
+            Tell us about your interests, hobbies, and goals. We&apos;ll use this to recommend the perfect clubs, 
             study groups, and opportunities just for you!
           </p>
           <div className="mt-6 bg-white/10 backdrop-blur-lg rounded-2xl p-4 max-w-md mx-auto">

@@ -1,0 +1,13 @@
+# 🔐 NextAuth Configuration
+NEXTAUTH_SECRET=your-super-secret-key-here-change-in-production
+NEXTAUTH_URL=http://localhost:3000
+
+# 🐙 GitHub OAuth (Get these from GitHub Developer Settings)
+GITHUB_ID=Ov23lik7FSQciZUvn7FG
+GITHUB_SECRET=62555a21a318b3985e53d8ecd42aa6883bedcda5
+
+# 🗄️ Database Configuration
+DATABASE_URL="postgresql://erwinmotallebi@localhost:5432/slugconnect?schema=public"
+
+# 🚀 Environment
+NODE_ENV=development

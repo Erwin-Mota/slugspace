@@ -174,7 +174,7 @@ export default function ClubCard({ club, isJoined, onToggle, isRecommended = fal
           <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
             <div className="flex items-center text-yellow-800">
               <i className="fas fa-users mr-2"></i>
-              <span className="text-sm font-medium">You're a member of this club!</span>
+              <span className="text-sm font-medium">You&apos;re a member of this club!</span>
             </div>
             <p className="text-xs text-yellow-700 mt-1">
               Stay connected with club updates and events.

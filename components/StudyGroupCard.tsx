@@ -117,7 +117,7 @@ export default function StudyGroupCard({ course, isJoined, onToggle }: StudyGrou
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-3">
             <div className="flex items-center text-yellow-800">
               <i className="fas fa-users mr-2"></i>
-              <span className="text-sm font-medium">You're in this study group!</span>
+              <span className="text-sm font-medium">You&apos;re in this study group!</span>
             </div>
             <p className="text-xs text-yellow-700 mt-1">
               Connect with classmates, share notes, and study together.

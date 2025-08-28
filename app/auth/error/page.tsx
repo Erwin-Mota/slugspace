@@ -88,7 +88,7 @@ export default function AuthErrorPage() {
           <div className="mt-6 p-4 bg-white/5 rounded-xl border border-white/10">
             <h3 className="text-yellow-300 font-semibold mb-2">💡 Need Help?</h3>
             <ul className="text-red-100 text-sm text-left space-y-1">
-              <li>• Make sure you're using your @ucsc.edu email</li>
+              <li>• Make sure you&apos;re using your @ucsc.edu email</li>
               <li>• Check your internet connection</li>
               <li>• Try clearing your browser cookies</li>
               <li>• Contact support if the problem persists</li>

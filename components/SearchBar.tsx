@@ -94,7 +94,7 @@ export default function SearchBar({
       {inputValue && (
         <div className="absolute -bottom-6 left-0 text-sm text-white/70">
           <i className="fas fa-search animate-pulse mr-1"></i>
-          Searching for "{inputValue}"...
+          Searching for &quot;{inputValue}&quot;...
         </div>
       )}
     </div>
