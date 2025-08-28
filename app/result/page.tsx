@@ -35,7 +35,7 @@ export default function ResultPage() {
     reset();
     router.push('/question/1');
   };
-
+  
   const handleBackToHome = () => {
     router.push('/');
   };
@@ -137,13 +137,13 @@ export default function ResultPage() {
                 <i className="fas fa-home"></i>
                 Back to Home
               </button>
-              <button
-                onClick={handleStartOver}
+            <button
+              onClick={handleStartOver}
                 className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
-              >
+            >
                 <i className="fas fa-redo"></i>
-                Start Over
-              </button>
+              Start Over
+            </button>
             </div>
             <p className="text-gray-600 text-sm">
               Explore more features on the home page or retake the survey

@@ -5,8 +5,8 @@ A modern, secure, and beautiful platform for UCSC students to connect, join stud
 ## ✨ Features
 
 ### 🔐 **Secure Authentication**
-- **Google OAuth Integration** - Seamless login with UCSC Google accounts
-- **Domain Restriction** - Only @ucsc.edu emails allowed
+- **GitHub OAuth Integration** - Seamless login with GitHub accounts
+- **Developer-Friendly** - Perfect for students and developers
 - **JWT Sessions** - Secure, stateless authentication
 - **Auto-profile Creation** - Automatic user profile setup on first login
 
@@ -55,7 +55,7 @@ A modern, secure, and beautiful platform for UCSC students to connect, join stud
 
 ### **Security Features**
 - **OAuth 2.0** - Industry-standard authentication
-- **Domain Gating** - UCSC email restriction
+- **GitHub Integration** - Developer-friendly authentication
 - **CSRF Protection** - Built-in security
 - **Rate Limiting** - DDoS protection ready
 - **Secure Cookies** - Production-ready security
@@ -65,7 +65,7 @@ A modern, secure, and beautiful platform for UCSC students to connect, join stud
 ### **Prerequisites**
 - Node.js 18+ 
 - PostgreSQL database
-- Google Cloud Console account (for OAuth)
+- GitHub account (for OAuth)
 
 ### **1. Clone & Install**
 ```bash
@@ -86,21 +86,23 @@ Required environment variables:
 NEXTAUTH_SECRET=your-super-secret-key-here
 NEXTAUTH_URL=http://localhost:3000
 
-# Google OAuth (Get from Google Cloud Console)
-GOOGLE_ID=your-google-client-id
-GOOGLE_SECRET=your-google-client-secret
+# GitHub OAuth (Get from GitHub Developer Settings)
+GITHUB_ID=your-github-client-id-here
+GITHUB_SECRET=your-github-client-secret-here
 
 # Database
 DATABASE_URL="postgresql://username:password@localhost:5432/slugconnect?schema=public"
 ```
 
-### **3. Google OAuth Setup**
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select existing
-3. Enable Google+ API
-4. Create OAuth 2.0 credentials
-5. Add `http://localhost:3000/api/auth/callback/google` to authorized redirect URIs
-6. Copy Client ID and Client Secret to `.env.local`
+### **3. GitHub OAuth Setup**
+1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
+2. Click "New OAuth App"
+3. Fill in the form:
+   - **Application name**: SlugConnect
+   - **Homepage URL**: http://localhost:3000
+   - **Authorization callback URL**: http://localhost:3000/api/auth/callback/github
+4. Click "Register application"
+5. Copy Client ID and Client Secret to `.env.local`
 
 ### **4. Database Setup**
 ```bash
@@ -148,7 +150,7 @@ slugconnect/
 
 ### **Authentication Security**
 - ✅ **No Password Storage** - OAuth handles all credentials
-- ✅ **Domain Restriction** - Only UCSC students can access
+- ✅ **GitHub Integration** - Secure developer authentication
 - ✅ **JWT Security** - Secure token-based sessions
 - ✅ **CSRF Protection** - Built-in NextAuth security
 - ✅ **Secure Cookies** - Production-ready cookie settings

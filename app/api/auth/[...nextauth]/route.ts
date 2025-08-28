@@ -1,32 +1,25 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
-import Google from "next-auth/providers/google";
+import GitHub from "next-auth/providers/github";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "../../../../lib/prisma";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
-    Google({
-      clientId: process.env.GOOGLE_ID!,
-      clientSecret: process.env.GOOGLE_SECRET!,
+    GitHub({
+      clientId: process.env.GITHUB_ID!,
+      clientSecret: process.env.GITHUB_SECRET!,
       authorization: {
         params: {
-          prompt: "consent",
-          access_type: "offline",
-          response_type: "code"
+          scope: "read:user user:email"
         }
       }
     }),
   ],
   callbacks: {
     async signIn({ profile, account, user }) {
-      // 🔒 Domain restriction - Only allow UCSC emails
-      if (!profile?.email?.endsWith("@ucsc.edu")) {
-        return false;
-      }
-      
       // 🎯 Auto-create user profile if first time
-      if (profile.email) {
+      if (profile?.email) {
         const existingUser = await prisma.user.findUnique({
           where: { email: profile.email }
         });
@@ -35,8 +28,8 @@ export const authOptions: NextAuthOptions = {
           await prisma.user.create({
             data: {
               email: profile.email,
-              name: profile.name || profile.email.split('@')[0],
-              image: (profile as any).picture,
+              name: profile.name || (profile as any).login || profile.email.split('@')[0],
+              image: (profile as any).avatar_url,
             }
           });
         }

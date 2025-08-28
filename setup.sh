@@ -75,20 +75,22 @@ if [ ! -d "prisma" ]; then
 fi
 
 echo -e "${CYAN}💡 Next steps:${NC}"
-echo -e "${BLUE}1. ${NC}Edit .env.local with your Google OAuth credentials and database URL"
+echo -e "${BLUE}1. ${NC}Edit .env.local with your GitHub OAuth credentials and database URL"
 echo -e "${BLUE}2. ${NC}Set up your PostgreSQL database"
 echo -e "${BLUE}3. ${NC}Run: ${YELLOW}npx prisma db push${NC}"
 echo -e "${BLUE}4. ${NC}Run: ${YELLOW}npx prisma generate${NC}"
 echo -e "${BLUE}5. ${NC}Start the development server: ${YELLOW}npm run dev${NC}\n"
 
-# Google OAuth setup instructions
-echo -e "${PURPLE}🔐 Google OAuth Setup Instructions:${NC}"
-echo -e "${CYAN}1. Go to ${BLUE}https://console.cloud.google.com/${NC}"
-echo -e "${CYAN}2. Create a new project or select existing${NC}"
-echo -e "${CYAN}3. Enable Google+ API${NC}"
-echo -e "${CYAN}4. Create OAuth 2.0 credentials${NC}"
-echo -e "${CYAN}5. Add redirect URI: ${YELLOW}http://localhost:3000/api/auth/callback/google${NC}"
-echo -e "${CYAN}6. Copy Client ID and Client Secret to .env.local${NC}\n"
+# GitHub OAuth setup instructions
+echo -e "${PURPLE}🔐 GitHub OAuth Setup Instructions:${NC}"
+echo -e "${CYAN}1. Go to ${BLUE}https://github.com/settings/developers${NC}"
+echo -e "${CYAN}2. Click 'New OAuth App'${NC}"
+echo -e "${CYAN}3. Fill in the form:${NC}"
+echo -e "${CYAN}   - Application name: ${YELLOW}SlugConnect${NC}"
+echo -e "${CYAN}   - Homepage URL: ${YELLOW}http://localhost:3000${NC}"
+echo -e "${CYAN}   - Authorization callback URL: ${YELLOW}http://localhost:3000/api/auth/callback/github${NC}"
+echo -e "${CYAN}4. Click 'Register application'${NC}"
+echo -e "${CYAN}5. Copy Client ID and Client Secret to .env.local${NC}\n"
 
 # Database setup instructions
 echo -e "${PURPLE}🗄️  Database Setup Instructions:${NC}"

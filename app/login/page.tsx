@@ -3,7 +3,7 @@
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FaGoogle, FaSlug, FaGraduationCap, FaUsers, FaHeart } from "react-icons/fa";
+import { FaGithub, FaHome, FaGraduationCap, FaUsers, FaHeart } from "react-icons/fa";
 
 export default function LoginPage() {
   const { data: session, status } = useSession();
@@ -17,10 +17,10 @@ export default function LoginPage() {
     }
   }, [session, router]);
 
-  const handleGoogleSignIn = async () => {
+  const handleGitHubSignIn = async () => {
     setIsLoading(true);
     try {
-      await signIn("google", { callbackUrl: "/" });
+      await signIn("github", { callbackUrl: "/" });
     } catch (error) {
       console.error("Sign in error:", error);
     } finally {
@@ -50,7 +50,7 @@ export default function LoginPage() {
         {/* 🏆 UCSC Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <FaSlug className="text-6xl text-yellow-400 mr-4 animate-bounce" />
+            <FaHome className="text-6xl text-yellow-400 mr-4 animate-bounce" />
             <div>
               <h1 className="text-4xl font-bold text-white mb-2">SlugConnect</h1>
               <p className="text-blue-100 text-lg">Your UCSC Community Hub</p>
@@ -81,22 +81,22 @@ export default function LoginPage() {
             <p className="text-blue-100">Connect with your UCSC community</p>
           </div>
 
-          {/* 🚀 Google Sign In Button */}
+          {/* 🚀 GitHub Sign In Button */}
           <button
-            onClick={handleGoogleSignIn}
+            onClick={handleGitHubSignIn}
             disabled={isLoading}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className={`w-full flex items-center justify-center space-x-3 bg-white text-gray-800 rounded-xl py-4 px-6 font-semibold transition-all duration-300 transform ${
+            className={`w-full flex items-center justify-center space-x-3 bg-gray-800 text-white rounded-xl py-4 px-6 font-semibold transition-all duration-300 transform ${
               isHovered ? 'scale-105 shadow-2xl' : 'shadow-lg'
-            } hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed`}
+            } hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {isLoading ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-800"></div>
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
             ) : (
               <>
-                <FaGoogle className="text-xl text-red-500" />
-                <span>Continue with Google</span>
+                <FaGithub className="text-xl" />
+                <span>Continue with GitHub</span>
               </>
             )}
           </button>
@@ -104,10 +104,10 @@ export default function LoginPage() {
           {/* 🔒 Security Notice */}
           <div className="mt-6 text-center">
             <p className="text-blue-200 text-sm">
-              🔒 Secure authentication via UCSC Google accounts only
+              🔒 Secure authentication via GitHub accounts
             </p>
             <p className="text-blue-100 text-xs mt-2">
-              Only @ucsc.edu emails are allowed
+              Quick and secure login for developers
             </p>
           </div>
         </div>
