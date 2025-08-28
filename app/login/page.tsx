@@ -1,21 +1,15 @@
 "use client";
 
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { FaGithub, FaHome, FaGraduationCap, FaUsers, FaHeart } from "react-icons/fa";
+import { useState } from "react";
+import { FaGithub, FaHome, FaGraduationCap, FaUsers, FaHeart, FaGoogle } from "react-icons/fa";
 
 export default function LoginPage() {
-  const { data: session, status } = useSession();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-
-  useEffect(() => {
-    if (session) {
-      router.push("/");
-    }
-  }, [session, router]);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const handleGitHubSignIn = async () => {
     setIsLoading(true);
@@ -28,13 +22,16 @@ export default function LoginPage() {
     }
   };
 
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-yellow-600 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-white"></div>
-      </div>
-    );
-  }
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    try {
+      await signIn("google", { callbackUrl: "/" });
+    } catch (error) {
+      console.error("Sign in error:", error);
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-yellow-600 flex items-center justify-center p-4">
@@ -87,56 +84,46 @@ export default function LoginPage() {
             disabled={isLoading}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className={`w-full flex items-center justify-center space-x-3 bg-gray-800 text-white rounded-xl py-4 px-6 font-semibold transition-all duration-300 transform ${
-              isHovered ? 'scale-105 shadow-2xl' : 'shadow-lg'
-            } hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed`}
+            className={`w-full mb-4 p-4 rounded-xl font-semibold text-lg transition-all duration-300 transform ${
+              isLoading
+                ? 'bg-gray-500 cursor-not-allowed'
+                : 'bg-gray-900 hover:bg-gray-800 hover:scale-105'
+            } text-white border-2 border-gray-700 hover:border-gray-600 flex items-center justify-center space-x-3`}
           >
-            {isLoading ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-            ) : (
-              <>
-                <FaGithub className="text-xl" />
-                <span>Continue with GitHub</span>
-              </>
-            )}
+            <FaGithub className="text-2xl" />
+            <span>{isLoading ? 'Signing in...' : 'Continue with GitHub'}</span>
+          </button>
+
+          {/* 🔵 Google Sign In Button */}
+          <button
+            onClick={handleGoogleSignIn}
+            disabled={isGoogleLoading}
+            className={`w-full mb-6 p-4 rounded-xl font-semibold text-lg transition-all duration-300 transform ${
+              isGoogleLoading
+                ? 'bg-gray-500 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700 hover:scale-105'
+            } text-white border-2 border-blue-500 hover:border-blue-600 flex items-center justify-center space-x-3`}
+          >
+            <FaGoogle className="text-2xl" />
+            <span>{isGoogleLoading ? 'Signing in...' : 'Continue with Google'}</span>
           </button>
 
           {/* 🔒 Security Notice */}
-          <div className="mt-6 text-center">
-            <p className="text-blue-200 text-sm">
-              🔒 Secure authentication via GitHub accounts
-            </p>
-            <p className="text-blue-100 text-xs mt-2">
-              Quick and secure login for developers
-            </p>
+          <div className="text-center text-blue-100 text-sm">
+            <p>🔒 Secure authentication via OAuth 2.0</p>
+            <p>Your password is never shared with us</p>
+          </div>
+
+          {/* 🏠 Back to Home */}
+          <div className="text-center mt-6">
+            <button
+              onClick={() => router.push('/')}
+              className="text-white/80 hover:text-white transition-colors duration-200 flex items-center mx-auto"
+            >
+              <FaHome className="mr-2" /> Back to Home
+            </button>
           </div>
         </div>
-
-        {/* 🎯 Back to Home */}
-        <div className="text-center mt-6">
-          <button
-            onClick={() => router.push("/")}
-            className="text-blue-200 hover:text-white transition-colors duration-200 flex items-center justify-center mx-auto space-x-2"
-          >
-            <span>← Back to Home</span>
-          </button>
-        </div>
-      </div>
-
-      {/* 🌟 Floating Particles */}
-      <div className="absolute inset-0 pointer-events-none">
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-2 h-2 bg-yellow-300 rounded-full opacity-60 animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${2 + Math.random() * 3}s`
-            }}
-          />
-        ))}
       </div>
     </div>
   );

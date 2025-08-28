@@ -79,8 +79,8 @@ export default function CollegeFinderPage() {
     
     setIsSubmitting(false);
     
-    // Redirect to the React college survey for better matching
-    router.push('/question/1');
+    // Redirect to the college survey for better matching
+    router.push('/college-survey');
   };
 
   const handleBackHome = () => {
@@ -174,7 +174,7 @@ export default function CollegeFinderPage() {
         {/* Single Interactive Button */}
         <div className="text-center mt-8">
           <button
-            onClick={() => router.push('/question/1')}
+            onClick={() => router.push('/college-survey')}
             className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-blue-900 px-8 py-4 rounded-2xl font-bold text-xl hover:from-yellow-500 hover:to-yellow-600 transition-all transform hover:scale-105 shadow-xl border-2 border-yellow-300"
           >
             🎯 Find My Perfect College Match

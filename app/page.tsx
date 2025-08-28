@@ -1,21 +1,9 @@
 "use client";
 
-import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { FaGraduationCap, FaUsers, FaHeart, FaCalendarAlt, FaArrowRight, FaHome } from "react-icons/fa";
-import UserProfile from "../components/UserProfile";
+import { FaGraduationCap, FaUsers, FaHeart, FaArrowRight, FaHome } from "react-icons/fa";
 
 export default function HomePage() {
-  const { data: session, status } = useSession();
-
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-yellow-600 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-white"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-yellow-600">
       {/* 🎯 Navigation Bar */}
@@ -32,16 +20,12 @@ export default function HomePage() {
 
           {/* 🔐 Authentication */}
           <div className="flex items-center space-x-4">
-            {session ? (
-              <UserProfile />
-            ) : (
-              <Link
-                href="/login"
-                className="bg-yellow-400 text-gray-800 px-6 py-2 rounded-xl font-semibold hover:bg-yellow-300 transition-colors duration-200"
-              >
-                Log In
-              </Link>
-            )}
+            <Link
+              href="/login"
+              className="bg-yellow-400 text-gray-800 px-6 py-2 rounded-xl font-semibold hover:bg-yellow-300 transition-colors duration-200"
+            >
+              Log In
+            </Link>
           </div>
         </div>
       </nav>
@@ -58,22 +42,20 @@ export default function HomePage() {
             and find your perfect college match. Build your community today!
           </p>
           
-          {!session && (
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/login"
-                className="bg-yellow-400 text-gray-800 px-8 py-4 rounded-xl font-bold text-lg hover:bg-yellow-300 transition-all duration-200 transform hover:scale-105"
-              >
-                Get Started
-              </Link>
-              <Link
-                href="/personalize"
-                className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/10 transition-all duration-200"
-              >
-                Learn More
-              </Link>
-            </div>
-          )}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/login"
+              className="bg-yellow-400 text-gray-800 px-8 py-4 rounded-xl font-bold text-lg hover:bg-yellow-300 transition-all duration-200 transform hover:scale-105"
+            >
+              Get Started
+            </Link>
+            <Link
+              href="/personalize"
+              className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white/10 transition-all duration-200"
+            >
+              Learn More
+            </Link>
+          </div>
         </div>
 
         {/* 🎭 Feature Cards */}
@@ -124,47 +106,33 @@ export default function HomePage() {
         </div>
 
         {/* 🎯 More Features */}
-        <div className="text-center">
+        <div className="text-center mb-16">
           <h3 className="text-3xl font-bold text-white mb-8">More Features</h3>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
-              <FaCalendarAlt className="text-3xl text-yellow-400 mx-auto mb-4" />
-              <h4 className="text-xl font-semibold text-white mb-2">Events</h4>
-              <p className="text-blue-100 text-sm">Stay updated with campus events and activities</p>
-            </div>
-            
+          <div className="grid md:grid-cols-1 gap-6">
             <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
               <FaUsers className="text-3xl text-yellow-400 mx-auto mb-4" />
               <h4 className="text-xl font-semibold text-white mb-2">Networking</h4>
-              <p className="text-blue-100 text-sm">Connect with students in your major and interests</p>
-            </div>
-            
-            <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
-              <FaHeart className="text-3xl text-yellow-400 mx-auto mb-4" />
-              <h4 className="text-xl font-semibold text-white mb-2">Recommendations</h4>
-              <p className="text-blue-100 text-sm">Get personalized suggestions based on your profile</p>
+              <p className="text-blue-100 text-sm">Connect with students and alumni</p>
             </div>
           </div>
         </div>
 
         {/* 🚀 Call to Action */}
-        {!session && (
-          <div className="text-center mt-16">
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
-              <h3 className="text-2xl font-bold text-white mb-4">Ready to Connect?</h3>
-              <p className="text-blue-100 mb-6">
-                Join thousands of UCSC students building their community on SlugConnect
-              </p>
-              <Link
-                href="/login"
-                className="inline-flex items-center space-x-2 bg-yellow-400 text-gray-800 px-8 py-4 rounded-xl font-bold text-lg hover:bg-yellow-300 transition-all duration-200 transform hover:scale-105"
-              >
-                <span>Get Started Now</span>
-                <FaArrowRight className="text-lg" />
-              </Link>
-            </div>
+        <div className="text-center mt-16">
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
+            <h3 className="text-2xl font-bold text-white mb-4">Ready to Connect?</h3>
+            <p className="text-blue-100 mb-6">
+              Join thousands of UCSC students building their community on SlugConnect
+            </p>
+            <Link
+              href="/login"
+              className="inline-flex items-center space-x-2 bg-yellow-400 text-gray-800 px-8 py-4 rounded-xl font-bold text-lg hover:bg-yellow-300 transition-all duration-200 transform hover:scale-105"
+            >
+              <span>Get Started Now</span>
+              <FaArrowRight className="text-lg" />
+            </Link>
           </div>
-        )}
+        </div>
       </main>
 
       {/* 🌟 Floating Particles */}

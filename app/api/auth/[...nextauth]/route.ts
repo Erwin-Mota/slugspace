@@ -1,5 +1,6 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GitHub from "next-auth/providers/github";
+import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "../../../../lib/prisma";
 
@@ -12,6 +13,17 @@ const authOptions: NextAuthOptions = {
       authorization: {
         params: {
           scope: "read:user user:email"
+        }
+      }
+    }),
+    Google({
+      clientId: process.env.GOOGLE_ID!,
+      clientSecret: process.env.GOOGLE_SECRET!,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
         }
       }
     }),
@@ -28,8 +40,8 @@ const authOptions: NextAuthOptions = {
           await prisma.user.create({
             data: {
               email: profile.email,
-              name: profile.name || (profile as any).login || profile.email.split('@')[0],
-              image: (profile as any).avatar_url,
+              name: profile.name || (profile as any).login || (profile as any).given_name || profile.email.split('@')[0],
+              image: (profile as any).avatar_url || (profile as any).picture,
             }
           });
         }
