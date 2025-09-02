@@ -9,8 +9,12 @@ interface ProvidersProps {
 
 export default function Providers({ children }: ProvidersProps) {
   return (
-    <SessionProvider>
+    <SessionProvider 
+      // 🚀 Don't block initial render waiting for session
+      refetchInterval={0}
+      refetchOnWindowFocus={false}
+    >
       {children}
     </SessionProvider>
   );
-} 
+}
