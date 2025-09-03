@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
-import { FaGraduationCap, FaUsers, FaHeart, FaArrowRight, FaHome, FaSpinner, FaSignOutAlt } from "react-icons/fa";
+import { FaGraduationCap, FaUsers, FaHeart, FaArrowRight, FaHome, FaSpinner, FaSignOutAlt, FaChartBar, FaDatabase } from "react-icons/fa";
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -98,6 +98,15 @@ export default function HomePage() {
             and find your perfect college match. Build your community today!
           </p>
           
+          {/* Database Status */}
+          <div className="bg-green-500/10 backdrop-blur-lg rounded-2xl p-4 border border-green-400/20 max-w-md mx-auto mb-8">
+            <div className="flex items-center justify-center gap-2 text-green-300">
+              <FaDatabase className="text-lg" />
+              <span className="font-semibold">Database Connected</span>
+            </div>
+            <p className="text-green-100 text-sm mt-1">All data is now stored securely in PostgreSQL</p>
+          </div>
+          
           {!session && (
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
@@ -166,11 +175,17 @@ export default function HomePage() {
         {/* 🎯 More Features */}
         <div className="text-center mb-16">
           <h3 className="text-3xl font-bold text-white mb-8">More Features</h3>
-          <div className="grid md:grid-cols-1 gap-6">
+          <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
               <FaUsers className="text-3xl text-yellow-400 mx-auto mb-4" />
               <h4 className="text-xl font-semibold text-white mb-2">Networking</h4>
               <p className="text-blue-100 text-sm">Connect with students and alumni</p>
+            </div>
+            
+            <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10">
+              <FaChartBar className="text-3xl text-yellow-400 mx-auto mb-4" />
+              <h4 className="text-xl font-semibold text-white mb-2">Analytics</h4>
+              <p className="text-blue-100 text-sm">Track your engagement and activity</p>
             </div>
           </div>
         </div>
@@ -221,6 +236,14 @@ export default function HomePage() {
                 >
                   Join Clubs
                 </Link>
+                {session.user?.role === 'admin' && (
+                  <Link
+                    href="/admin"
+                    className="bg-red-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-red-600 transition-colors duration-200"
+                  >
+                    Admin Dashboard
+                  </Link>
+                )}
               </div>
             </div>
           </div>

@@ -1,6 +1,3 @@
-// 🚀 Prisma client for future database operations
-// Currently not used in OAuth flow for maximum speed
-
 import { PrismaClient } from '@prisma/client'
 
 const globalForPrisma = globalThis as unknown as {

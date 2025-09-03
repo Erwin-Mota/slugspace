@@ -2,17 +2,37 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import SearchBar from '@/components/SearchBar';
 import ClubCard from '@/components/ClubCard';
-import clubsData from '@/data/ucsc_clubs.json';
 
 // TypeScript interfaces
 interface Club {
-  category: string;
+  id: string;
   name: string;
   description: string;
-  email: string;
-  instagram: string | null;
+  category: string;
+  meetingTime?: string;
+  meetingLocation?: string;
+  contactEmail?: string;
+  website?: string;
+  instagram?: string;
+  discord?: string;
+  imageUrl?: string;
+  memberCount: number;
+  popularityScore: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ClubsResponse {
+  clubs: Club[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
 }
 
 interface ClubsByCategory {
@@ -21,27 +41,74 @@ interface ClubsByCategory {
 
 export default function ClubsPage() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [userTags, setUserTags] = useState<string[]>([]);
+  const [clubs, setClubs] = useState<Club[]>([]);
   const [joinedClubs, setJoinedClubs] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Load user data
+  // Fetch clubs from API
+  const fetchClubs = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const params = new URLSearchParams({
+        page: '1',
+        limit: '1000', // Get all clubs for now
+        ...(searchTerm && { search: searchTerm }),
+        ...(selectedCategory !== 'all' && { category: selectedCategory }),
+        sortBy: 'name',
+        sortOrder: 'asc',
+      });
+      
+      const response = await fetch(`/api/v1/clubs?${params}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch clubs');
+      }
+      
+      const data: ClubsResponse = await response.json();
+      setClubs(data.clubs);
+    } catch (err) {
+      console.error('Error fetching clubs:', err);
+      setError('Failed to load clubs. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [searchTerm, selectedCategory]);
+
+  // Load user data and fetch clubs
   useEffect(() => {
-    const confirmedTags = localStorage.getItem('confirmedTags');
-    const savedJoinedClubs = localStorage.getItem('joinedClubs');
+    const loadUserData = async () => {
+      // Load joined clubs from localStorage for now
+      const savedJoinedClubs = localStorage.getItem('joinedClubs');
+      if (savedJoinedClubs) {
+        setJoinedClubs(new Set(JSON.parse(savedJoinedClubs)));
+      }
+      
+      // If user is logged in, fetch their actual club memberships
+      if (session?.user?.id) {
+        try {
+          const response = await fetch('/api/v1/user');
+          if (response.ok) {
+            const userData = await response.json();
+            const userJoinedClubs = new Set(
+              userData.clubMemberships?.map((membership: any) => membership.club.id) || []
+            );
+            setJoinedClubs(userJoinedClubs);
+          }
+        } catch (err) {
+          console.error('Error fetching user data:', err);
+        }
+      }
+      
+      await fetchClubs();
+    };
     
-    if (confirmedTags) {
-      setUserTags(JSON.parse(confirmedTags));
-    }
-    
-    if (savedJoinedClubs) {
-      setJoinedClubs(new Set(JSON.parse(savedJoinedClubs)));
-    }
-    
-    setIsLoading(false);
-  }, []);
+    loadUserData();
+  }, [fetchClubs, session]);
 
   // Save joined clubs to localStorage
   useEffect(() => {
@@ -52,79 +119,57 @@ export default function ClubsPage() {
 
   // Group clubs by category
   const clubsByCategory: ClubsByCategory = useMemo(() => {
-    return (clubsData as Club[]).reduce((acc, club) => {
+    return clubs.reduce((acc, club) => {
       if (!acc[club.category]) {
         acc[club.category] = [];
       }
       acc[club.category].push(club);
       return acc;
     }, {} as ClubsByCategory);
-  }, []);
+  }, [clubs]);
 
   // Get all categories
   const categories = useMemo(() => {
     return ['all', ...Object.keys(clubsByCategory).sort()];
   }, [clubsByCategory]);
 
-  // Smart club recommendations based on user tags
-  const recommendedClubs = useMemo(() => {
-    if (userTags.length === 0) return [];
-    
-    const recommendations = (clubsData as Club[]).filter(club => {
-      const clubText = `${club.name} ${club.description}`.toLowerCase();
-      return userTags.some(tag => 
-        clubText.includes(tag.toLowerCase().replace('-', ' '))
-      );
-    });
-    
-    return recommendations.slice(0, 6); // Top 6 recommendations
-  }, [userTags]);
-
-  // Filter clubs based on search and category
-  const filteredClubs = useMemo(() => {
-    let filtered = clubsData as Club[];
-    
-    // Filter by category
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(club => club.category === selectedCategory);
-    }
-    
-    // Filter by search term
-    if (searchTerm.trim()) {
-      const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(club =>
-        club.name.toLowerCase().includes(searchLower) ||
-        club.description.toLowerCase().includes(searchLower) ||
-        club.category.toLowerCase().includes(searchLower)
-      );
-    }
-    
-    return filtered;
-  }, [searchTerm, selectedCategory]);
-
-  // Group filtered clubs by category
-  const filteredClubsByCategory = useMemo(() => {
-    return filteredClubs.reduce((acc, club) => {
-      if (!acc[club.category]) {
-        acc[club.category] = [];
-      }
-      acc[club.category].push(club);
-      return acc;
-    }, {} as ClubsByCategory);
-  }, [filteredClubs]);
-
   // Toggle club membership
-  const toggleClubMembership = useCallback((clubName: string) => {
-    setJoinedClubs(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(clubName)) {
-        newSet.delete(clubName);
+  const toggleClubMembership = useCallback(async (clubId: string) => {
+    try {
+      const isCurrentlyJoined = joinedClubs.has(clubId);
+      
+      if (isCurrentlyJoined) {
+        // Leave club
+        const response = await fetch(`/api/v1/clubs/${clubId}/members`, {
+          method: 'DELETE',
+        });
+        
+        if (response.ok) {
+          setJoinedClubs(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(clubId);
+            return newSet;
+          });
+        } else {
+          throw new Error('Failed to leave club');
+        }
       } else {
-        newSet.add(clubName);
+        // Join club
+        const response = await fetch(`/api/v1/clubs/${clubId}/members`, {
+          method: 'POST',
+        });
+        
+        if (response.ok) {
+          setJoinedClubs(prev => new Set([...prev, clubId]));
+        } else {
+          throw new Error('Failed to join club');
+        }
       }
-      return newSet;
-    });
-  }, []);
+    } catch (err) {
+      console.error('Error toggling club membership:', err);
+      // You could show a toast notification here
+    }
+  }, [joinedClubs]);
 
   const handleSearch = useCallback((term: string) => {
     setSearchTerm(term);
@@ -140,6 +185,24 @@ export default function ClubsPage() {
         <div className="text-center text-white">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
           <p className="text-xl">Loading clubs...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black flex items-center justify-center">
+        <div className="text-center text-white">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold mb-4">Error Loading Clubs</h2>
+          <p className="text-gray-300 mb-6">{error}</p>
+          <button
+            onClick={fetchClubs}
+            className="bg-yellow-400 text-gray-800 px-6 py-3 rounded-xl font-semibold hover:bg-yellow-500 transition-colors"
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
@@ -170,7 +233,7 @@ export default function ClubsPage() {
               {joinedClubs.size} clubs joined
             </p>
             <p className="text-gray-200 text-sm">
-              {filteredClubs.length} clubs available
+              {clubs.length} clubs available
             </p>
           </div>
         </div>
@@ -205,68 +268,19 @@ export default function ClubsPage() {
           </div>
         </div>
 
-        {/* Personalized Recommendations */}
-        {recommendedClubs.length > 0 && userTags.length > 0 && (
-          <div className="mb-16">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-white mb-4">
-                🎯 Recommended for You
-              </h2>
-              <p className="text-gray-300">
-                Based on your interests: {userTags.slice(0, 3).join(', ')}
-                {userTags.length > 3 && ` +${userTags.length - 3} more`}
-              </p>
-            </div>
-            
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto mb-8">
-              {recommendedClubs.map((club) => (
-                <ClubCard
-                  key={club.name}
-                  club={club}
-                  isJoined={joinedClubs.has(club.name)}
-                  onToggle={() => toggleClubMembership(club.name)}
-                  isRecommended={true}
-                />
-              ))}
-            </div>
-            
-            <div className="text-center">
-              <div className="h-px bg-gradient-to-r from-transparent via-white/30 to-transparent mb-4"></div>
-              <p className="text-gray-400">Showing personalized recommendations</p>
-            </div>
-          </div>
-        )}
-
-        {/* User Tags Display */}
-        {userTags.length > 0 && (
-          <div className="text-center mb-12">
-            <h3 className="text-xl font-semibold text-white mb-4">Your Interests</h3>
-            <div className="flex flex-wrap justify-center gap-2 max-w-4xl mx-auto">
-              {userTags.map((tag) => (
-                <span 
-                  key={tag}
-                  className="bg-yellow-400/20 text-yellow-300 px-3 py-1 rounded-full text-sm font-medium border border-yellow-400/30"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* No personalization message */}
-        {userTags.length === 0 && (
+        {/* Authentication Notice */}
+        {!session && (
           <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 max-w-2xl mx-auto mb-12 text-center">
-            <div className="text-4xl mb-4">⚙️</div>
-            <h3 className="text-xl font-bold text-white mb-3">Get Personalized Recommendations</h3>
+            <div className="text-4xl mb-4">🔐</div>
+            <h3 className="text-xl font-bold text-white mb-3">Sign in to Join Clubs</h3>
             <p className="text-gray-200 mb-4">
-              Complete your personalization to see clubs tailored to your interests!
+              Create an account or sign in to join clubs and track your memberships!
             </p>
             <button
-              onClick={() => router.push('/personalize')}
+              onClick={() => router.push('/login')}
               className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-800 px-6 py-3 rounded-xl font-semibold hover:from-yellow-500 hover:to-yellow-600 transition-all"
             >
-              Personalize Now
+              Sign In
             </button>
           </div>
         )}
@@ -277,7 +291,7 @@ export default function ClubsPage() {
             {searchTerm ? `Search Results` : selectedCategory === 'all' ? 'All Clubs' : `${selectedCategory} Clubs`}
           </h2>
           
-          {Object.keys(filteredClubsByCategory).length === 0 ? (
+          {Object.keys(clubsByCategory).length === 0 ? (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">🔍</div>
               <h3 className="text-2xl font-semibold mb-2">No clubs found</h3>
@@ -287,20 +301,20 @@ export default function ClubsPage() {
             </div>
           ) : (
             <div className="space-y-12">
-              {Object.entries(filteredClubsByCategory)
+              {Object.entries(clubsByCategory)
                 .sort(([a], [b]) => a.localeCompare(b))
-                .map(([category, clubs]) => (
+                .map(([category, categoryClubs]) => (
                   <div key={category} className="bg-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/10 shadow-2xl">
                     <h3 className="text-2xl font-bold text-yellow-300 mb-6 border-b border-yellow-300/30 pb-2">
-                      {category} ({clubs.length})
+                      {category} ({categoryClubs.length})
                     </h3>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {clubs.map((club) => (
+                      {categoryClubs.map((club) => (
                         <ClubCard
-                          key={club.name}
+                          key={club.id}
                           club={club}
-                          isJoined={joinedClubs.has(club.name)}
-                          onToggle={() => toggleClubMembership(club.name)}
+                          isJoined={joinedClubs.has(club.id)}
+                          onToggle={() => toggleClubMembership(club.id)}
                         />
                       ))}
                     </div>
@@ -312,4 +326,4 @@ export default function ClubsPage() {
       </div>
     </div>
   );
-} 
+}

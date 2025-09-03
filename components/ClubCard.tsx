@@ -3,11 +3,21 @@
 import { useState } from 'react';
 
 interface Club {
-  category: string;
+  id: string;
   name: string;
   description: string;
-  email: string;
-  instagram: string | null;
+  category: string;
+  meetingTime?: string;
+  meetingLocation?: string;
+  contactEmail?: string;
+  website?: string;
+  instagram?: string;
+  discord?: string;
+  imageUrl?: string;
+  memberCount: number;
+  popularityScore: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface ClubCardProps {
@@ -92,6 +102,16 @@ export default function ClubCard({ club, isJoined, onToggle, isRecommended = fal
             <h3 className="font-bold text-gray-800 text-lg mb-2 leading-tight">
               {club.name}
             </h3>
+            <div className="flex items-center gap-4 text-xs text-gray-500">
+              <span className="flex items-center gap-1">
+                <i className="fas fa-users"></i>
+                {club.memberCount} members
+              </span>
+              <span className="flex items-center gap-1">
+                <i className="fas fa-star"></i>
+                {club.popularityScore.toFixed(1)}
+              </span>
+            </div>
           </div>
           
           {/* Join/Leave Button */}
@@ -137,18 +157,53 @@ export default function ClubCard({ club, isJoined, onToggle, isRecommended = fal
           )}
         </div>
 
+        {/* Meeting Information */}
+        {(club.meetingTime || club.meetingLocation) && (
+          <div className="mb-4 bg-gray-50 rounded-lg p-3">
+            <h4 className="text-sm font-semibold text-gray-700 mb-2">Meeting Info:</h4>
+            <div className="space-y-1">
+              {club.meetingTime && (
+                <div className="flex items-center gap-2">
+                  <i className="fas fa-clock text-gray-500 text-sm"></i>
+                  <span className="text-gray-600 text-sm">{club.meetingTime}</span>
+                </div>
+              )}
+              {club.meetingLocation && (
+                <div className="flex items-center gap-2">
+                  <i className="fas fa-map-marker-alt text-gray-500 text-sm"></i>
+                  <span className="text-gray-600 text-sm">{club.meetingLocation}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Contact Information */}
         <div className="border-t border-gray-200 pt-4">
           <h4 className="text-sm font-semibold text-gray-700 mb-2">Contact Info:</h4>
           <div className="space-y-2">
-            {club.email && (
+            {club.contactEmail && (
               <div className="flex items-center gap-2">
                 <i className="fas fa-envelope text-gray-500 text-sm"></i>
                 <a 
-                  href={`mailto:${club.email}`}
+                  href={`mailto:${club.contactEmail}`}
                   className="text-blue-600 hover:text-blue-800 text-sm transition-colors"
                 >
-                  {club.email}
+                  {club.contactEmail}
+                </a>
+              </div>
+            )}
+            
+            {club.website && (
+              <div className="flex items-center gap-2">
+                <i className="fas fa-globe text-gray-500 text-sm"></i>
+                <a 
+                  href={club.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-800 text-sm transition-colors"
+                >
+                  Website
                 </a>
               </div>
             )}
@@ -163,6 +218,20 @@ export default function ClubCard({ club, isJoined, onToggle, isRecommended = fal
                   className="text-pink-600 hover:text-pink-800 text-sm transition-colors"
                 >
                   @{club.instagram}
+                </a>
+              </div>
+            )}
+            
+            {club.discord && (
+              <div className="flex items-center gap-2">
+                <i className="fab fa-discord text-indigo-500 text-sm"></i>
+                <a 
+                  href={club.discord}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-indigo-600 hover:text-indigo-800 text-sm transition-colors"
+                >
+                  Discord Server
                 </a>
               </div>
             )}
@@ -184,4 +253,4 @@ export default function ClubCard({ club, isJoined, onToggle, isRecommended = fal
       </div>
     </div>
   );
-} 
+}
