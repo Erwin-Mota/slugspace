@@ -44,40 +44,68 @@ export default function ClubsPage() {
   const { data: session } = useSession();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [clubs, setClubs] = useState<Club[]>([]);
+  const [allClubs, setAllClubs] = useState<Club[]>([]);
+  const [filteredClubs, setFilteredClubs] = useState<Club[]>([]);
   const [joinedClubs, setJoinedClubs] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch clubs from API
+  // Fetch clubs from JSON file - only once on mount
   const fetchClubs = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
       
-      const params = new URLSearchParams({
-        page: '1',
-        limit: '1000', // Get all clubs for now
-        ...(searchTerm && { search: searchTerm }),
-        ...(selectedCategory !== 'all' && { category: selectedCategory }),
-        sortBy: 'name',
-        sortOrder: 'asc',
-      });
-      
-      const response = await fetch(`/api/v1/clubs?${params}`);
+      const response = await fetch('/data/ucsc_clubs.json');
       if (!response.ok) {
         throw new Error('Failed to fetch clubs');
       }
       
-      const data: ClubsResponse = await response.json();
-      setClubs(data.clubs);
+      const data = await response.json();
+      
+      // Transform to Club format
+      const transformedClubs: Club[] = data.map((club: any, index: number) => ({
+        id: `club-${index}`,
+        name: club.name,
+        description: club.description,
+        category: club.category,
+        contactEmail: club.email,
+        instagram: club.instagram,
+        memberCount: Math.floor(Math.random() * 100),
+        popularityScore: Math.random() * 100,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }));
+      
+      setAllClubs(transformedClubs);
+      setFilteredClubs(transformedClubs);
     } catch (err) {
       console.error('Error fetching clubs:', err);
       setError('Failed to load clubs. Please try again.');
     } finally {
       setIsLoading(false);
     }
-  }, [searchTerm, selectedCategory]);
+  }, []);
+
+  // Filter clubs when search term or category changes
+  useEffect(() => {
+    let filtered = [...allClubs];
+    
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(club => club.category === selectedCategory);
+    }
+    
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase();
+      filtered = filtered.filter(club => 
+        club.name.toLowerCase().includes(search) ||
+        club.description.toLowerCase().includes(search) ||
+        club.category.toLowerCase().includes(search)
+      );
+    }
+    
+    setFilteredClubs(filtered);
+  }, [searchTerm, selectedCategory, allClubs]);
 
   // Load user data and fetch clubs
   useEffect(() => {
@@ -104,11 +132,13 @@ export default function ClubsPage() {
         }
       }
       
-      await fetchClubs();
+      if (allClubs.length === 0) {
+        await fetchClubs();
+      }
     };
     
     loadUserData();
-  }, [fetchClubs, session]);
+  }, [fetchClubs, session, allClubs.length]);
 
   // Save joined clubs to localStorage
   useEffect(() => {
@@ -119,14 +149,14 @@ export default function ClubsPage() {
 
   // Group clubs by category
   const clubsByCategory: ClubsByCategory = useMemo(() => {
-    return clubs.reduce((acc, club) => {
+    return filteredClubs.reduce((acc, club) => {
       if (!acc[club.category]) {
         acc[club.category] = [];
       }
       acc[club.category].push(club);
       return acc;
     }, {} as ClubsByCategory);
-  }, [clubs]);
+  }, [filteredClubs]);
 
   // Get all categories
   const categories = useMemo(() => {
@@ -233,7 +263,7 @@ export default function ClubsPage() {
               {joinedClubs.size} clubs joined
             </p>
             <p className="text-gray-200 text-sm">
-              {clubs.length} clubs available
+              {allClubs.length} clubs available
             </p>
           </div>
         </div>
