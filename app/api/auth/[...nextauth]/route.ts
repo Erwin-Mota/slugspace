@@ -10,22 +10,23 @@ const handler = NextAuth({
     GitHub({
       clientId: process.env.GITHUB_ID!,
       clientSecret: process.env.GITHUB_SECRET!,
+      authorization: { params: { scope: 'read:user user:email' } },
     }),
     Google({
       clientId: process.env.GOOGLE_ID!,
       clientSecret: process.env.GOOGLE_SECRET!,
+      authorization: { params: { scope: 'openid email profile' } },
     }),
   ],
   callbacks: {
     async signIn({ profile, account, user }) {
-      console.log("🔐 SignIn callback triggered");
-      console.log("Provider:", account?.provider);
-      console.log("Profile email:", profile?.email);
+      // Minimal logging for performance
       
       // Auto-create user analytics entry on first login
       if (user?.id) {
         try {
-          await prisma.userAnalytics.upsert({
+          // Fire-and-forget to avoid blocking the OAuth flow
+          prisma.userAnalytics.upsert({
             where: { userId: user.id },
             update: {
               loginCount: { increment: 1 },
@@ -36,16 +37,15 @@ const handler = NextAuth({
               loginCount: 1,
               lastLoginAt: new Date(),
             },
-          });
+          }).catch(() => {});
         } catch (error) {
-          console.error("Error updating user analytics:", error);
+          // Ignore analytics errors to keep auth fast
         }
       }
       
       return true;
     },
     async redirect({ url, baseUrl }) {
-      console.log("🔄 Redirect callback - URL:", url, "BaseURL:", baseUrl);
       if (url.startsWith("/")) {
         return `${baseUrl}${url}`;
       }
@@ -54,26 +54,15 @@ const handler = NextAuth({
       }
       return baseUrl;
     },
-    async session({ session, user }) {
-      if (user?.id && session.user) {
-        (session.user as any).id = user.id;
-        
-        // Add user analytics to session
-        try {
-          const analytics = await prisma.userAnalytics.findUnique({
-            where: { userId: user.id },
-          });
-          (session.user as any).analytics = analytics;
-        } catch (error) {
-          console.error("Error fetching user analytics:", error);
-        }
+    async session({ session, token }) {
+      // Attach user id from JWT without DB lookup
+      if (session.user && token?.sub) {
+        (session.user as any).id = token.sub;
       }
       return session;
     },
-    async jwt({ token, user, account, profile }) {
-      if (user) {
-        token.id = user.id;
-      }
+    async jwt({ token, user }) {
+      if (user) token.sub = user.id;
       return token;
     },
   },
@@ -82,13 +71,14 @@ const handler = NextAuth({
     error: "/auth/error",
     signOut: "/",
   },
+  // Use JWT sessions for speed (avoids DB round-trips on every request)
   session: {
-    strategy: "database", // Use database sessions for better integration
-    maxAge: 7 * 24 * 60 * 60, // 7 days
+    strategy: "jwt",
+    maxAge: 7 * 24 * 60 * 60,
   },
   useSecureCookies: process.env.NODE_ENV === 'production',
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === "development",
+  debug: false,
 });
 
 export { handler as GET, handler as POST };

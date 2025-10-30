@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function PersonalizePage() {
   const { data: session, status } = useSession();
@@ -10,14 +10,272 @@ export default function PersonalizePage() {
   const [interests, setInterests] = useState<string[]>([]);
   const [major, setMajor] = useState("");
   const [year, setYear] = useState("");
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+
+  // Load saved preferences on mount
+  useEffect(() => {
+    const savedPreferences = localStorage.getItem('userPreferences');
+    if (savedPreferences) {
+      try {
+        const prefs = JSON.parse(savedPreferences);
+        if (prefs.interests) setInterests(prefs.interests);
+        if (prefs.major) setMajor(prefs.major);
+        if (prefs.year) setYear(prefs.year);
+      } catch (err) {
+        console.error('Error loading preferences:', err);
+      }
+    }
+  }, []);
 
   // Removed login requirement
 
-  const availableInterests = [
-    "Technology", "Sports", "Arts", "Music", "Science",
-    "Business", "Gaming", "Social Justice", "Environment",
-    "Health & Wellness", "Photography", "Film", "Writing"
-  ];
+  const categories: Record<string, string[]> = useMemo(() => ({
+    Sports: [
+      "Martial Arts",
+      "Soccer",
+      "Basketball",
+      "Volleyball",
+      "Tennis",
+      "Running",
+      "Cycling",
+      "Swimming",
+      "Baseball",
+      "Softball",
+      "Football",
+      "Lacrosse",
+      "Ultimate Frisbee",
+      "Water Polo",
+      "Fencing",
+      "Judo",
+      "Taekwondo",
+      "Badminton",
+      "Rugby",
+      "Triathlon",
+      "Equestrian",
+      "Ice Hockey",
+      "Sailing",
+      "Surfing",
+    ],
+    Tech: [
+      "AI/ML",
+      "Web Development",
+      "Mobile Apps",
+      "Cybersecurity",
+      "Data Science",
+      "Game Development",
+      "Robotics",
+      "Systems/Infra",
+      "Cloud Computing",
+      "Blockchain",
+      "Software Engineering",
+      "Computer Graphics",
+      "Hardware Design",
+      "UI/UX Design",
+      "Human-Computer Interaction",
+      "Networking",
+      "Embedded Systems",
+      "Quantum Computing",
+      "Bioinformatics",
+      "Neurotechnology",
+    ],
+    Writing: [
+      "Creative Writing",
+      "Journalism",
+      "Blogging",
+      "Poetry",
+      "Screenwriting",
+      "Editing",
+      "Technical Writing",
+      "Grant Writing",
+      "Copywriting",
+      "Short Stories",
+      "Novels",
+      "Non-Fiction",
+      "Literary Analysis",
+      "Publishing",
+      "Proofreading",
+    ],
+    Science: [
+      "Biology",
+      "Chemistry",
+      "Physics",
+      "Neuroscience",
+      "Ecology",
+      "Earth Sciences",
+      "Mathematics",
+      "Astronomy",
+      "Geology",
+      "Oceanography",
+      "Psychology",
+      "Cognitive Science",
+      "Biochemistry",
+      "Genetics",
+      "Environmental Science",
+      "Marine Biology",
+      "Anthropology",
+      "Archaeology",
+      "Forensics",
+      "Biotechnology",
+    ],
+    Outdoors: [
+      "Hiking",
+      "Climbing",
+      "Surfing",
+      "Sailing",
+      "Camping",
+      "Trail Running",
+      "Backpacking",
+      "Rock Climbing",
+      "Bouldering",
+      "Mountain Biking",
+      "Kayaking",
+      "Canoeing",
+      "Paddleboarding",
+      "Snorkeling",
+      "Scuba Diving",
+      "Fishing",
+      "Bird Watching",
+      "Gardening",
+      "Stargazing",
+      "Wilderness Survival",
+    ],
+    Arts: [
+      "Visual Arts",
+      "Photography",
+      "Film",
+      "Dance",
+      "Theater",
+      "Music Performance",
+      "Drawing",
+      "Painting",
+      "Sculpture",
+      "Digital Art",
+      "Graphic Design",
+      "Illustration",
+      "Ceramics",
+      "Printmaking",
+      "Animation",
+      "Acting",
+      "Comedy",
+      "Improv",
+      "Singing",
+      "A Cappella",
+      "Music Production",
+      "DJing",
+      "Fashion Design",
+      "Costume Design",
+    ],
+    Business: [
+      "Entrepreneurship",
+      "Investing",
+      "Marketing",
+      "Consulting",
+      "Product Management",
+      "Sales",
+      "Finance",
+      "Accounting",
+      "Real Estate",
+      "Business Strategy",
+      "Operations",
+      "Supply Chain",
+      "Human Resources",
+      "Project Management",
+      "Business Analytics",
+      "E-commerce",
+      "Social Media Marketing",
+      "Branding",
+      "Customer Relations",
+      "International Business",
+    ],
+    "Health & Wellness": [
+      "Fitness",
+      "Nutrition",
+      "Mental Health",
+      "Public Health",
+      "Pre‑Med",
+      "Pre‑Vet",
+      "Yoga",
+      "Meditation",
+      "Mindfulness",
+      "Physical Therapy",
+      "Occupational Therapy",
+      "Dentistry",
+      "Pharmacy",
+      "Nursing",
+      "Physician Assistant",
+      "Optometry",
+      "Sports Medicine",
+      "Alternative Medicine",
+      "Health Education",
+      "Wellness Coaching",
+    ],
+    Gaming: [
+      "Esports",
+      "Fighting Games",
+      "Rhythm Games",
+      "Tabletop",
+      "RPGs",
+      "Game Design",
+      "Board Games",
+      "Card Games",
+      "Strategy Games",
+      "Puzzle Games",
+      "First-Person Shooters",
+      "MOBAs",
+      "MMORPGs",
+      "Retro Gaming",
+      "Indie Games",
+      "Game Art",
+      "Game Programming",
+      "Game Testing",
+      "Speedrunning",
+      "Streaming",
+    ],
+    "Social Impact": [
+      "Volunteering",
+      "Environmental Action",
+      "Public Policy",
+      "Community Organizing",
+      "Health Equity",
+      "Education",
+      "Human Rights",
+      "Social Justice",
+      "Advocacy",
+      "Non-Profit Work",
+      "Fundraising",
+      "Community Service",
+      "Sustainable Living",
+      "Climate Action",
+      "Housing Rights",
+      "Food Security",
+      "Immigration Rights",
+      "Disability Rights",
+      "LGBTQ+ Advocacy",
+      "Racial Justice",
+    ],
+    Socialization: [
+      "Fraternities",
+      "Sororities",
+      "Greek Life",
+      "Social Events",
+      "Networking",
+      "Community Building",
+      "Professional Fraternities",
+      "Multicultural Organizations",
+      "Cultural Groups",
+      "Identity Organizations",
+      "Mentorship Programs",
+      "Peer Support",
+      "Study Groups",
+      "Social Clubs",
+      "Dining Clubs",
+      "Hobby Groups",
+      "Travel Groups",
+      "Alumni Networks",
+      "Leadership Development",
+      "Team Building",
+    ],
+  }), []);
 
   const toggleInterest = (interest: string) => {
     setInterests(prev =>
@@ -27,9 +285,34 @@ export default function PersonalizePage() {
     );
   };
 
+  const toggleCategory = (category: string) => {
+    setExpandedCategory(prev => (prev === category ? null : category));
+  };
+
   const handleSubmit = async () => {
-    // TODO: Save to database via API
-    console.log({ interests, major, year });
+    // Save preferences to localStorage (and eventually API)
+    const preferences = {
+      interests,
+      major,
+      year,
+      updatedAt: new Date().toISOString(),
+    };
+    
+    localStorage.setItem('userPreferences', JSON.stringify(preferences));
+    
+    // TODO: Save to database via API when user is logged in
+    if (session?.user?.id) {
+      try {
+        // await fetch('/api/v1/user/preferences', {
+        //   method: 'PUT',
+        //   headers: { 'Content-Type': 'application/json' },
+        //   body: JSON.stringify(preferences),
+        // });
+      } catch (err) {
+        console.error('Error saving preferences to API:', err);
+      }
+    }
+    
     router.push("/");
   };
 
@@ -79,21 +362,85 @@ export default function PersonalizePage() {
             <label className="block text-lg font-semibold text-gray-900 mb-3">
               Select your interests
             </label>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {availableInterests.map((interest) => (
+
+            {/* Top-level categories */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+              {Object.keys(categories).map((cat) => (
                 <button
-                  key={interest}
-                  onClick={() => toggleInterest(interest)}
-                  className={`px-4 py-3 rounded-lg font-medium transition-all ${
-                    interests.includes(interest)
-                      ? "bg-blue-600 text-white shadow-lg"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  key={cat}
+                  onClick={() => toggleCategory(cat)}
+                  className={`px-4 py-3 rounded-lg font-semibold transition-all flex items-center justify-between gap-2 border ${
+                    expandedCategory === cat
+                      ? "bg-blue-600 text-white border-blue-600 shadow-lg"
+                      : "bg-gray-100 text-gray-800 hover:bg-gray-200 border-gray-200"
                   }`}
                 >
-                  {interest}
+                  <span>{cat}</span>
+                  <span className="text-sm">
+                    {expandedCategory === cat ? "▾" : "▸"}
+                  </span>
                 </button>
               ))}
             </div>
+
+            {/* Subcategories panel */}
+            {expandedCategory && (
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {expandedCategory}
+                  </h3>
+                  <button
+                    onClick={() => setExpandedCategory(null)}
+                    className="text-sm text-gray-600 hover:text-gray-800"
+                  >
+                    Close
+                  </button>
+                </div>
+                <p className="text-sm text-gray-600 mb-3">Choose subcategories:</p>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {categories[expandedCategory].map((sub) => (
+                    <button
+                      key={sub}
+                      onClick={() => toggleInterest(sub)}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                        interests.includes(sub)
+                          ? "bg-blue-600 text-white shadow"
+                          : "bg-white text-gray-800 hover:bg-gray-100 border border-gray-200"
+                      }`}
+                    >
+                      {sub}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Selected chips */}
+            {interests.length > 0 && (
+              <div className="mt-6">
+                <div className="text-sm text-gray-700 font-medium mb-2">
+                  Selected interests
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {interests.map((i) => (
+                    <span
+                      key={i}
+                      className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm border border-blue-200"
+                    >
+                      {i}
+                      <button
+                        onClick={() => toggleInterest(i)}
+                        className="hover:text-blue-900"
+                        aria-label={`Remove ${i}`}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Submit */}

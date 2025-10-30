@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import SearchBar from '@/components/SearchBar';
 import ClubCard from '@/components/ClubCard';
+import { getRecommendedClubs } from '@/utils/clubRecommendations';
 
 // TypeScript interfaces
 interface Club {
@@ -19,7 +20,7 @@ interface Club {
   instagram?: string;
   discord?: string;
   imageUrl?: string;
-  memberCount: number;
+  memberCount?: number;
   popularityScore: number;
   createdAt: string;
   updatedAt: string;
@@ -46,6 +47,8 @@ export default function ClubsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [allClubs, setAllClubs] = useState<Club[]>([]);
   const [filteredClubs, setFilteredClubs] = useState<Club[]>([]);
+  const [recommendedClubs, setRecommendedClubs] = useState<Club[]>([]);
+  const [userPreferences, setUserPreferences] = useState<{ interests: string[]; major?: string; year?: string } | null>(null);
   const [joinedClubs, setJoinedClubs] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -71,7 +74,6 @@ export default function ClubsPage() {
         category: club.category,
         contactEmail: club.email,
         instagram: club.instagram,
-        memberCount: Math.floor(Math.random() * 100),
         popularityScore: Math.random() * 100,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -87,9 +89,42 @@ export default function ClubsPage() {
     }
   }, []);
 
+  // Load user preferences
+  useEffect(() => {
+    const savedPreferences = localStorage.getItem('userPreferences');
+    if (savedPreferences) {
+      try {
+        const prefs = JSON.parse(savedPreferences);
+        setUserPreferences({
+          interests: prefs.interests || [],
+          major: prefs.major,
+          year: prefs.year,
+        });
+      } catch (err) {
+        console.error('Error loading preferences:', err);
+      }
+    }
+  }, []);
+
+  // Calculate recommended clubs based on preferences
+  useEffect(() => {
+    if (allClubs.length > 0 && userPreferences && userPreferences.interests.length > 0) {
+      const recommended = getRecommendedClubs<Club>(allClubs, userPreferences, 12);
+      setRecommendedClubs(recommended);
+    } else {
+      setRecommendedClubs([]);
+    }
+  }, [allClubs, userPreferences]);
+
   // Filter clubs when search term or category changes
   useEffect(() => {
     let filtered = [...allClubs];
+    
+    // If we have recommended clubs and no search/filter, exclude them from main list
+    if (recommendedClubs.length > 0 && !searchTerm && selectedCategory === 'all') {
+      const recommendedIds = new Set(recommendedClubs.map(c => c.id));
+      filtered = filtered.filter(club => !recommendedIds.has(club.id));
+    }
     
     if (selectedCategory !== 'all') {
       filtered = filtered.filter(club => club.category === selectedCategory);
@@ -105,7 +140,7 @@ export default function ClubsPage() {
     }
     
     setFilteredClubs(filtered);
-  }, [searchTerm, selectedCategory, allClubs]);
+  }, [searchTerm, selectedCategory, allClubs, recommendedClubs]);
 
   // Load user data and fetch clubs
   useEffect(() => {
@@ -122,7 +157,7 @@ export default function ClubsPage() {
           const response = await fetch('/api/v1/user');
           if (response.ok) {
             const userData = await response.json();
-            const userJoinedClubs = new Set(
+            const userJoinedClubs = new Set<string>(
               userData.clubMemberships?.map((membership: any) => membership.club.id) || []
             );
             setJoinedClubs(userJoinedClubs);
@@ -190,7 +225,7 @@ export default function ClubsPage() {
         });
         
         if (response.ok) {
-          setJoinedClubs(prev => new Set([...prev, clubId]));
+          setJoinedClubs(prev => new Set([...Array.from(prev), clubId]));
         } else {
           throw new Error('Failed to join club');
         }
@@ -297,6 +332,61 @@ export default function ClubsPage() {
             ))}
           </div>
         </div>
+
+        {/* Recommended Clubs Section */}
+        {recommendedClubs.length > 0 && !searchTerm && selectedCategory === 'all' && (
+          <div className="max-w-7xl mx-auto mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-3xl font-bold text-white mb-2">
+                  ⭐ Recommended for You
+                </h2>
+                <p className="text-gray-300">
+                  Clubs that match your interests from the personalize section
+                </p>
+              </div>
+              <button
+                onClick={() => router.push('/personalize')}
+                className="text-sm text-yellow-300 hover:text-yellow-200 underline"
+              >
+                Update preferences
+              </button>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {recommendedClubs.map((club) => (
+                <div key={club.id} className="relative">
+                  <div className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-800 px-3 py-1 rounded-full text-xs font-bold shadow-lg z-10">
+                    ⭐ Recommended
+                  </div>
+                  <ClubCard
+                    club={club}
+                    isJoined={joinedClubs.has(club.id)}
+                    onToggle={() => toggleClubMembership(club.id)}
+                    isRecommended={true}
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-white/20 pt-8 mb-8"></div>
+          </div>
+        )}
+
+        {/* Prompt to personalize if no preferences */}
+        {!userPreferences && !searchTerm && selectedCategory === 'all' && (
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 max-w-2xl mx-auto mb-12 text-center">
+            <div className="text-4xl mb-4">🎯</div>
+            <h3 className="text-xl font-bold text-white mb-3">Get Personalized Recommendations</h3>
+            <p className="text-gray-200 mb-4">
+              Tell us about your interests to see clubs that match your preferences!
+            </p>
+            <button
+              onClick={() => router.push('/personalize')}
+              className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-800 px-6 py-3 rounded-xl font-semibold hover:from-yellow-500 hover:to-yellow-600 transition-all"
+            >
+              Personalize My Experience
+            </button>
+          </div>
+        )}
 
         {/* Authentication Notice */}
         {!session && (

@@ -14,7 +14,7 @@ interface Club {
   instagram?: string;
   discord?: string;
   imageUrl?: string;
-  memberCount: number;
+  memberCount?: number;
   popularityScore: number;
   createdAt: string;
   updatedAt: string;
@@ -103,10 +103,12 @@ export default function ClubCard({ club, isJoined, onToggle, isRecommended = fal
               {club.name}
             </h3>
             <div className="flex items-center gap-4 text-xs text-gray-500">
-              <span className="flex items-center gap-1">
-                <i className="fas fa-users"></i>
-                {club.memberCount} members
-              </span>
+              {club.memberCount !== undefined && (
+                <span className="flex items-center gap-1">
+                  <i className="fas fa-users"></i>
+                  {club.memberCount} members
+                </span>
+              )}
               <span className="flex items-center gap-1">
                 <i className="fas fa-star"></i>
                 {club.popularityScore.toFixed(1)}
