@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaGraduationCap, FaUsers, FaHeart, FaArrowRight, FaHome, FaSpinner, FaSignOutAlt, FaChartBar } from "react-icons/fa";
 
 export default function HomePage() {
