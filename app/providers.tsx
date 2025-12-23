@@ -13,7 +13,7 @@ export default function Providers({ children }: ProvidersProps) {
     <ErrorBoundary>
       <SessionProvider 
         // Refetch session after OAuth redirect
-        refetchInterval={5 * 60} // Refetch every 5 minutes
+        refetchInterval={0} // Disable automatic refetch - we'll handle it manually
         refetchOnWindowFocus={true} // Refetch when user returns to tab
         refetchWhenOffline={false}
       >

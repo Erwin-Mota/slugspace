@@ -7,13 +7,19 @@ import { useState } from "react";
 import { FaGraduationCap, FaUsers, FaHeart, FaArrowRight, FaHome, FaSpinner, FaSignOutAlt, FaChartBar } from "react-icons/fa";
 
 export default function HomePage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const [isSigningOut, setIsSigningOut] = useState(false);
   
+  // Force session refetch after OAuth redirect
+  useEffect(() => {
+    if (status === 'unauthenticated' && window.location.search.includes('callbackUrl')) {
+      // OAuth just redirected, force session check
+      update();
+    }
+  }, [status, update]);
+  
   // Debug session status
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Session status:', status, 'Session:', session);
-  }
+  console.log('Session status:', status, 'Session:', session);
 
   // 🚀 Handle instant sign out
   const handleSignOut = async () => {
