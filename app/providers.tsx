@@ -12,9 +12,9 @@ export default function Providers({ children }: ProvidersProps) {
   return (
     <ErrorBoundary>
       <SessionProvider 
-        // 🚀 Don't block initial render waiting for session
-        refetchInterval={0}
-        refetchOnWindowFocus={false}
+        // Refetch session after OAuth redirect
+        refetchInterval={5 * 60} // Refetch every 5 minutes
+        refetchOnWindowFocus={true} // Refetch when user returns to tab
       >
         {children}
       </SessionProvider>

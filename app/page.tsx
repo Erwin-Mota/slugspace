@@ -7,8 +7,13 @@ import { useState } from "react";
 import { FaGraduationCap, FaUsers, FaHeart, FaArrowRight, FaHome, FaSpinner, FaSignOutAlt, FaChartBar } from "react-icons/fa";
 
 export default function HomePage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  
+  // Debug session status
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Session status:', status, 'Session:', session);
+  }
 
   // 🚀 Handle instant sign out
   const handleSignOut = async () => {
