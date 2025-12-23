@@ -5,9 +5,30 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 function createPrismaClient() {
+  // Get DATABASE_URL and ensure pgbouncer parameter is set for connection poolers
+  let databaseUrl = process.env.DATABASE_URL || ''
+  
+  // Check if using Supabase connection pooler (port 6543 or contains 'pooler')
+  const isPooler = databaseUrl.includes('pooler') || databaseUrl.includes(':6543')
+  
+  if (isPooler && !databaseUrl.includes('pgbouncer=true')) {
+    // Add pgbouncer parameter to disable prepared statements
+    databaseUrl = databaseUrl.includes('?')
+      ? `${databaseUrl}&pgbouncer=true&connect_timeout=10`
+      : `${databaseUrl}?pgbouncer=true&connect_timeout=10`
+  }
+  
   return new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
     errorFormat: 'pretty',
+    // Override DATABASE_URL if we modified it for pooler
+    ...(isPooler && databaseUrl !== process.env.DATABASE_URL && {
+      datasources: {
+        db: {
+          url: databaseUrl
+        }
+      }
+    }),
   })
 }
 
