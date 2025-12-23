@@ -2,6 +2,9 @@
 const nextConfig = {
   // App directory is now stable in Next.js 14, no experimental flag needed
   
+  // Ensure CSS is properly processed
+  swcMinify: true,
+  
   // 🔒 Security Headers
   async headers() {
     return [
