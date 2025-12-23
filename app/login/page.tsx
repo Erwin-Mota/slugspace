@@ -5,6 +5,9 @@ import { useState } from "react";
 import { FaGithub, FaGoogle, FaSpinner, FaHome } from "react-icons/fa";
 import Link from "next/link";
 
+// Force dynamic rendering for OAuth
+export const dynamic = 'force-dynamic';
+
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState<string | null>(null);
 
