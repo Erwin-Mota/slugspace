@@ -308,19 +308,28 @@ export default function PersonalizePage() {
       
       // Save to database via API when user is logged in
       if (session?.user?.id) {
-        const response = await fetch('/api/v1/user', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            interests,
-            major,
-            year,
-          }),
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.error || 'Failed to save preferences');
+        try {
+          const response = await fetch('/api/v1/user', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              interests,
+              major,
+              year,
+            }),
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error('API Error:', errorData);
+            // Don't throw - allow localStorage save to complete
+            // User will see error but can still use the site
+            setError(errorData.error || 'Failed to save preferences to database. Saved to browser instead.');
+          }
+        } catch (apiError: any) {
+          console.error('API request failed:', apiError);
+          // Don't throw - allow localStorage save to complete
+          setError('Failed to save preferences to database. Saved to browser instead.');
         }
       }
       
