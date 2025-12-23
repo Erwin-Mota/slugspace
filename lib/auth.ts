@@ -94,6 +94,5 @@ export const authOptions: NextAuthOptions = {
   useSecureCookies: process.env.NODE_ENV === 'production',
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === 'development', // Enable debug in dev
-  trustHost: true, // Trust Vercel's host
 };
 
