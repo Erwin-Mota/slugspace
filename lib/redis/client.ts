@@ -13,18 +13,17 @@ export function getRedisClient(): Redis {
     if (redisUrl) {
       // Production Redis (Railway, Heroku, etc.)
       redis = new Redis(redisUrl as string, {
-        retryDelayOnFailover: 100,
-        enableReadyCheck: false,
         maxRetriesPerRequest: null,
+        enableReadyCheck: false,
       });
     } else {
       // Development Redis (local)
-      const port = parseInt(process.env.REDIS_PORT || '6379', 10);
-      redis = new Redis(port, process.env.REDIS_HOST || 'localhost', {
+      redis = new Redis({
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379', 10),
         password: process.env.REDIS_PASSWORD || undefined,
-        retryDelayOnFailover: 100,
-        enableReadyCheck: false,
         maxRetriesPerRequest: null,
+        enableReadyCheck: false,
       });
     }
 
