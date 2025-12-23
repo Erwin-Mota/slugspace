@@ -343,7 +343,7 @@ export default function PersonalizePage() {
           {/* Major */}
           <div>
             <label className="block text-lg font-semibold text-gray-900 mb-3">
-              What's your major?
+              What&apos;s your major?
             </label>
             <input
               type="text"

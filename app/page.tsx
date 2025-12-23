@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
 import { FaGraduationCap, FaUsers, FaHeart, FaArrowRight, FaHome, FaSpinner, FaSignOutAlt, FaChartBar } from "react-icons/fa";
@@ -59,10 +60,13 @@ export default function HomePage() {
                   <p className="text-blue-100 text-sm">{session.user?.name || session.user?.email}</p>
                 </div>
                 {session.user?.image && (
-                  <img 
+                  <Image 
                     src={session.user.image} 
                     alt="Profile" 
+                    width={40}
+                    height={40}
                     className="w-10 h-10 rounded-full border-2 border-yellow-400"
+                    unoptimized
                   />
                 )}
                 <button

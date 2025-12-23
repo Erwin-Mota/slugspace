@@ -240,7 +240,7 @@ export function comprehensiveSanitize(input: any): any {
   return sanitized;
 }
 
-export default {
+const sanitizer = {
   sanitizeInput,
   sanitizeSQL,
   sanitizeEmail,
@@ -251,3 +251,5 @@ export default {
   detectThreats,
   comprehensiveSanitize
 };
+
+export default sanitizer;

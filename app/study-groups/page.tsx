@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -33,54 +33,6 @@ export default function StudyGroupsPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [userMembershipCount, setUserMembershipCount] = useState(0);
 
-  useEffect(() => {
-    if (status === "authenticated") {
-      fetchCourses();
-      fetchUserMemberships();
-    } else if (status === "unauthenticated") {
-      router.push("/login");
-    }
-  }, [status, router]);
-
-  const fetchCourses = async () => {
-    try {
-      const response = await fetch("/data/ucsc_courses.json");
-      if (response.ok) {
-        const data = await response.json();
-        setDepartments(data);
-      }
-    } catch (error) {
-      console.error("Error fetching courses:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchUserMemberships = async () => {
-    try {
-      const response = await fetch("/api/v1/user");
-      if (response.ok) {
-        const userData = await response.json();
-        if (userData.studyGroupMemberships) {
-          const courseCodes = new Set<string>(
-            userData.studyGroupMemberships
-              .map((m: any) => m.course?.code)
-              .filter((code: any): code is string => Boolean(code))
-          );
-          setJoinedCourses(courseCodes);
-          setUserMembershipCount(userData.studyGroupMemberships.length);
-          
-          // Fetch members for each joined course
-          courseCodes.forEach((code) => {
-            fetchMembers(code);
-          });
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching user memberships:", error);
-    }
-  };
-
   const fetchMembers = async (courseCode: string) => {
     if (loadingMembers.has(courseCode)) return;
     
@@ -102,6 +54,56 @@ export default function StudyGroupsPage() {
         newSet.delete(courseCode);
         return newSet;
       });
+    }
+  };
+
+  const fetchUserMemberships = useCallback(async () => {
+    try {
+      const response = await fetch("/api/v1/user");
+      if (response.ok) {
+        const userData = await response.json();
+        if (userData.studyGroupMemberships) {
+          const courseCodes = new Set<string>(
+            userData.studyGroupMemberships
+              .map((m: any) => m.course?.code)
+              .filter((code: any): code is string => Boolean(code))
+          );
+          setJoinedCourses(courseCodes);
+          setUserMembershipCount(userData.studyGroupMemberships.length);
+          
+          // Fetch members for each joined course
+          courseCodes.forEach((code) => {
+            if (!memberEmails[code]) {
+              fetchMembers(code);
+            }
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching user memberships:", error);
+    }
+  }, [memberEmails, fetchMembers]);
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetchCourses();
+      fetchUserMemberships();
+    } else if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router, fetchUserMemberships]);
+
+  const fetchCourses = async () => {
+    try {
+      const response = await fetch("/data/ucsc_courses.json");
+      if (response.ok) {
+        const data = await response.json();
+        setDepartments(data);
+      }
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+    } finally {
+      setLoading(false);
     }
   };
 

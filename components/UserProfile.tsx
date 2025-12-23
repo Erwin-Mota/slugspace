@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
 import { FaUser, FaSignOutAlt, FaEdit, FaHeart, FaGraduationCap, FaUsers, FaCog } from "react-icons/fa";
@@ -26,10 +27,13 @@ export default function UserProfile() {
         className="flex items-center space-x-3 bg-white/10 backdrop-blur-lg rounded-xl px-4 py-2 hover:bg-white/20 transition-all duration-200 border border-white/20"
       >
         {user.image ? (
-          <img
+          <Image
             src={user.image}
             alt={user.name || "User"}
+            width={32}
+            height={32}
             className="w-8 h-8 rounded-full border-2 border-yellow-400"
+            unoptimized
           />
         ) : (
           <div className="w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center">
@@ -51,10 +55,13 @@ export default function UserProfile() {
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center space-x-4 mb-4">
               {user.image ? (
-                <img
+                <Image
                   src={user.image}
                   alt={user.name || "User"}
+                  width={64}
+                  height={64}
                   className="w-16 h-16 rounded-full border-4 border-yellow-400"
+                  unoptimized
                 />
               ) : (
                 <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center">

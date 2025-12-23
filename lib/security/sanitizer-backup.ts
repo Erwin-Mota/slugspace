@@ -74,7 +74,7 @@ export function sanitizeSQL(input: string): string {
 
   // Remove SQL injection patterns
   return input
-    .replace(/('|(\\')|(;)|(\-\-)|(\/\*)|(\*\/)|(\|)|(\*)|(%)|(\+)|(\=)|(\<)|(\>)|(\[)|(\])|(\{)|(\})|(\()|(\))|(\^)|(\$)|(\!)|(\@)|(\#)|(\&)|(\~)|(\`)|(\\)/g, '')
+    .replace(/('|(\\')|(;)|(\-\-)|(\/\*)|(\*\/)|(\|)|(\*)|(%)|(\+)|(\=)|(\<)|(\>)|(\[)|(\])|(\{)|(\})|(\()|(\))|(\^)|(\$)|(\!)|(\@)|(\#)|(\&)|(\~)|(\`)|(\\))/g, '')
     .replace(/(union|select|insert|update|delete|drop|create|alter|exec|execute|script|javascript|vbscript)/gi, '')
     .trim();
 }
@@ -263,7 +263,7 @@ export function sanitizeSearchQuery(query: string): string {
 
   return query
     // Remove SQL injection patterns
-    .replace(/('|(\\')|(;)|(\-\-)|(\/\*)|(\*\/)/g, '')
+    .replace(/('|(\\')|(;)|(\-\-)|(\/\*)|(\*\/))/g, '')
     // Remove script tags
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
     // Remove HTML tags
@@ -288,7 +288,7 @@ export const FIELD_SANITIZERS = {
   sql: sanitizeSQL,
 };
 
-export default {
+const sanitizerBackup = {
   sanitizeInput,
   sanitizeHTML,
   sanitizeSQL,
@@ -302,3 +302,5 @@ export default {
   sanitizeSearchQuery,
   FIELD_SANITIZERS,
 };
+
+export default sanitizerBackup;
