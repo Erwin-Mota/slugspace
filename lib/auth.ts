@@ -3,10 +3,8 @@ import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import type { NextAuthOptions } from "next-auth";
 
-// Lazy import prisma to avoid connection during build
-function getPrisma() {
-  return require("@/lib/prisma").prisma;
-}
+// Import prisma - adapter needs it at initialization
+import { prisma } from "@/lib/prisma";
 
 const providers = [];
 
@@ -32,32 +30,12 @@ if (process.env.GOOGLE_ID && process.env.GOOGLE_SECRET) {
 }
 
 export const authOptions: NextAuthOptions = {
-  // Lazy adapter initialization - only connect when actually used
-  adapter: PrismaAdapter(getPrisma()),
+  // Use adapter to create users in database, but JWT for sessions
+  adapter: PrismaAdapter(prisma),
   providers,
   callbacks: {
     async signIn({ profile, account, user }) {
-      // Auto-create user analytics entry on first login
-      if (user?.id) {
-        try {
-          // Fire-and-forget to avoid blocking the OAuth flow
-          getPrisma().userAnalytics.upsert({
-            where: { userId: user.id },
-            update: {
-              loginCount: { increment: 1 },
-              lastLoginAt: new Date(),
-            },
-            create: {
-              userId: user.id,
-              loginCount: 1,
-              lastLoginAt: new Date(),
-            },
-          }).catch(() => {});
-        } catch (error) {
-          // Ignore analytics errors to keep auth fast
-        }
-      }
-      
+      // Allow sign in
       return true;
     },
     async redirect({ url, baseUrl }) {
@@ -69,15 +47,36 @@ export const authOptions: NextAuthOptions = {
       }
       return baseUrl;
     },
-    async session({ session, token }) {
-      // Attach user id from JWT without DB lookup
-      if (session.user && token?.sub) {
+    async session({ session, token, user }) {
+      // Attach user id and data to session
+      if (token?.sub) {
         (session.user as any).id = token.sub;
+      }
+      if (token?.email) {
+        session.user.email = token.email as string;
+      }
+      if (token?.name) {
+        session.user.name = token.name as string;
+      }
+      if (token?.picture) {
+        session.user.image = token.picture as string;
       }
       return session;
     },
-    async jwt({ token, user }) {
-      if (user) token.sub = user.id;
+    async jwt({ token, user, account, profile }) {
+      // Initial sign in - user object is available
+      if (user) {
+        token.sub = user.id;
+        token.email = user.email;
+        token.name = user.name;
+        token.picture = user.image;
+      }
+      // Update from profile on OAuth sign in
+      if (profile) {
+        token.email = profile.email || token.email;
+        token.name = profile.name || token.name;
+        token.picture = profile.picture || profile.image || token.picture;
+      }
       return token;
     },
   },
