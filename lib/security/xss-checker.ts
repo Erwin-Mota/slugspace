@@ -1,6 +1,8 @@
 // 🛡️ XSS (Cross-Site Scripting) Detection and Prevention
 // Advanced XSS pattern detection
 
+import { detectSQLInjection } from './sql-injection-checker';
+
 // XSS attack patterns
 const XSS_PATTERNS = [
   // Script tags

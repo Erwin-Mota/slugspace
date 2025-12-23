@@ -34,9 +34,11 @@ export default function StudyGroupsPage() {
   const [userMembershipCount, setUserMembershipCount] = useState(0);
 
   const fetchMembers = useCallback(async (courseCode: string) => {
-    if (loadingMembers.has(courseCode)) return;
+    setLoadingMembers(prev => {
+      if (prev.has(courseCode)) return prev;
+      return new Set(prev).add(courseCode);
+    });
     
-    setLoadingMembers(prev => new Set(prev).add(courseCode));
     try {
       const response = await fetch(`/api/v1/study-groups/members?courseCode=${encodeURIComponent(courseCode)}`);
       if (response.ok) {

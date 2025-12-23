@@ -134,7 +134,7 @@ export function withBruteForceProtection(
 // Cleanup expired blocks (run periodically)
 export function cleanupExpiredBlocks(): void {
   const now = Date.now();
-  for (const [key, record] of failedAttempts.entries()) {
+  for (const [key, record] of Array.from(failedAttempts.entries())) {
     if (now > record.resetTime) {
       failedAttempts.delete(key);
     }

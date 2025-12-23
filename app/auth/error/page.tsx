@@ -3,8 +3,9 @@
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { FaExclamationTriangle, FaArrowLeft, FaHome } from "react-icons/fa";
+import { Suspense } from "react";
 
-export default function AuthErrorPage() {
+function AuthErrorContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const error = searchParams.get("error");
@@ -113,5 +114,17 @@ export default function AuthErrorPage() {
         ))}
       </div>
     </div>
+  );
+}
+
+export default function AuthErrorPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-red-900 via-red-800 to-orange-600 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    }>
+      <AuthErrorContent />
+    </Suspense>
   );
 } 

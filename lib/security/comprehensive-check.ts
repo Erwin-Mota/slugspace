@@ -69,9 +69,9 @@ export function comprehensiveSecurityCheck(input: any): SecurityCheckResult {
   
   return {
     safe: threats.length === 0,
-    threats: [...new Set(threats)],
+    threats: Array.from(new Set(threats)),
     severity,
-    recommendations: [...new Set(recommendations)]
+    recommendations: Array.from(new Set(recommendations))
   };
 }
 

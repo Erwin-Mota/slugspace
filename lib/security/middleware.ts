@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { rateLimitStore } from './rate-limiter';
 import { sanitizeInput } from './sanitizer';
-import { auditLog } from './audit-logger';
+import { auditLog, AuditEventType } from './audit-logger';
 
 // 🛡️ Security Middleware for SlugSpace
 // Comprehensive security layer for all API endpoints
@@ -40,9 +40,10 @@ export async function rateLimitMiddleware(
   const isAllowed = rateLimitStore.checkRateLimit(clientId, windowMs, maxRequests);
   
   if (!isAllowed) {
-    await auditLog('RATE_LIMIT_EXCEEDED', {
-      ip,
-      userAgent: request.headers.get('user-agent'),
+    const userAgent = request.headers.get('user-agent');
+    await auditLog.log(AuditEventType.RATE_LIMIT_EXCEEDED, {
+      ipAddress: ip,
+      userAgent: userAgent || undefined,
       endpoint: request.nextUrl.pathname,
       method: request.method,
     });
@@ -270,14 +271,13 @@ export async function auditMiddleware(
   const userAgent = request.headers.get('user-agent');
   const ip = request.headers.get('x-forwarded-for') || request.ip || 'unknown';
   
-  await auditLog('API_REQUEST', {
+  await auditLog.log(AuditEventType.API_REQUEST, {
     endpoint,
     method,
     userId,
-    ip,
-    userAgent,
+    ipAddress: ip || undefined,
+    userAgent: userAgent || undefined,
     statusCode: response.status,
-    timestamp: new Date().toISOString(),
   });
 }
 
@@ -304,28 +304,28 @@ export async function withSecurity<T>(
   try {
     // 1. Request size check
     const sizeCheck = requestSizeMiddleware(request, maxSize);
-    if (sizeCheck) return sizeCheck;
+    if (sizeCheck) return sizeCheck as NextResponse<T>;
     
     // 2. IP whitelist check
     const ipCheck = ipWhitelistMiddleware(request, allowedIPs);
-    if (ipCheck) return ipCheck;
+    if (ipCheck) return ipCheck as NextResponse<T>;
     
     // 3. CSRF protection
     if (csrf) {
       const csrfCheck = csrfMiddleware(request);
-      if (csrfCheck) return csrfCheck;
+      if (csrfCheck) return csrfCheck as NextResponse<T>;
     }
     
     // 4. Rate limiting
     const rateLimitCheck = await rateLimitMiddleware(request, rateLimit);
-    if (rateLimitCheck) return rateLimitCheck;
+    if (rateLimitCheck) return rateLimitCheck as NextResponse<T>;
     
     // 5. Input sanitization
     const sanitizedRequest = await sanitizationMiddleware(request);
     
     // 6. Authentication
     const { user, error: authError } = await authMiddleware(sanitizedRequest, auth);
-    if (authError) return authError;
+    if (authError) return authError as NextResponse<T>;
     
     // 7. Execute handler
     const response = await handler(sanitizedRequest, user);
@@ -352,7 +352,7 @@ export async function withSecurity<T>(
         status: 500,
         headers: securityHeaders()
       }
-    );
+    ) as NextResponse<T>;
   }
 }
 

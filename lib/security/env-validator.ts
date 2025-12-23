@@ -6,7 +6,7 @@ import { z } from 'zod';
 const envSchema = z.object({
   // Core Next.js
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  NEXTAUTH_URL: z.string().url().optional(),
+  NEXTAUTH_URL: z.string().url().optional().or(z.string().default('')),
   NEXTAUTH_SECRET: z.string().min(32, 'Secret must be at least 32 characters'),
   
   // Database
@@ -35,7 +35,7 @@ export function validateEnvironment(): EnvType {
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.error('❌ Environment validation failed:');
-      error.errors.forEach((err) => {
+      error.issues.forEach((err) => {
         console.error(`  - ${err.path.join('.')}: ${err.message}`);
       });
       throw new Error('Invalid environment configuration. See errors above.');
@@ -65,5 +65,20 @@ export function isDevelopment(): boolean {
 }
 
 // Export validated env (use this instead of process.env directly)
-export const env = getEnv();
+// Lazy load to avoid validation errors at module import time
+let _env: EnvType | null = null;
+
+export function getValidatedEnv(): EnvType {
+  if (!_env) {
+    _env = getEnv();
+  }
+  return _env;
+}
+
+// For backwards compatibility, but don't validate at module load
+export const env = new Proxy({} as EnvType, {
+  get(target, prop) {
+    return getValidatedEnv()[prop as keyof EnvType];
+  }
+});
 

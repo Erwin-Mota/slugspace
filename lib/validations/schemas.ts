@@ -7,9 +7,9 @@ export const UserCreateSchema = z.object({
   image: z.string().url('Invalid image URL').optional(),
   ucscId: z.string().optional(),
   major: z.string().max(100, 'Major name too long').optional(),
-  year: z.enum(['freshman', 'sophomore', 'junior', 'senior', 'graduate']).optional(),
+  year: z.enum(['freshman', 'sophomore', 'junior', 'senior', 'graduate'] as [string, ...string[]]).optional(),
   college: z.string().max(50, 'College name too long').optional(),
-  personalityTraits: z.record(z.any()).optional(),
+  personalityTraits: z.record(z.string(), z.any()).optional(),
 });
 
 export const UserUpdateSchema = UserCreateSchema.partial();
@@ -38,13 +38,13 @@ export const ClubQuerySchema = z.object({
   limit: z.coerce.number().min(1).max(100).default(20),
   search: z.string().optional(),
   category: z.string().optional(),
-  sortBy: z.enum(['name', 'category', 'popularity', 'createdAt']).default('name'),
-  sortOrder: z.enum(['asc', 'desc']).default('asc'),
+  sortBy: z.enum(['name', 'category', 'popularity', 'createdAt'] as [string, ...string[]]).default('name'),
+  sortOrder: z.enum(['asc', 'desc'] as [string, ...string[]]).default('asc'),
 });
 
 export const ClubMembershipSchema = z.object({
   clubId: z.string().cuid('Invalid club ID'),
-  role: z.enum(['member', 'admin', 'founder']).default('member'),
+  role: z.enum(['member', 'admin', 'founder'] as [string, ...string[]]).default('member'),
 });
 
 // 📚 Course Validation Schemas
@@ -52,7 +52,7 @@ export const CourseCreateSchema = z.object({
   code: z.string().min(1, 'Course code is required').max(20, 'Course code too long'),
   name: z.string().min(1, 'Course name is required').max(200, 'Course name too long'),
   credits: z.number().min(1).max(20).optional(),
-  level: z.enum(['lower', 'upper', 'graduate']).optional(),
+  level: z.enum(['lower', 'upper', 'graduate'] as [string, ...string[]]).optional(),
   description: z.string().max(1000, 'Description too long').optional(),
   prerequisites: z.string().max(500, 'Prerequisites too long').optional(),
   quartersOffered: z.string().max(100, 'Quarters offered info too long').optional(),
@@ -64,15 +64,15 @@ export const CourseQuerySchema = z.object({
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(20),
   search: z.string().optional(),
-  level: z.enum(['lower', 'upper', 'graduate']).optional(),
+  level: z.enum(['lower', 'upper', 'graduate'] as [string, ...string[]]).optional(),
   department: z.string().optional(),
-  sortBy: z.enum(['code', 'name', 'credits', 'level']).default('code'),
-  sortOrder: z.enum(['asc', 'desc']).default('asc'),
+  sortBy: z.enum(['code', 'name', 'credits', 'level'] as [string, ...string[]]).default('code'),
+  sortOrder: z.enum(['asc', 'desc'] as [string, ...string[]]).default('asc'),
 });
 
 export const StudyGroupMembershipSchema = z.object({
   courseId: z.string().cuid('Invalid course ID'),
-  role: z.enum(['student', 'tutor', 'leader']).default('student'),
+  role: z.enum(['student', 'tutor', 'leader'] as [string, ...string[]]).default('student'),
 });
 
 // 🏠 College Validation Schemas
@@ -103,14 +103,14 @@ export const CollegeSurveySchema = z.object({
 // 🔍 Search Validation Schemas
 export const SearchQuerySchema = z.object({
   q: z.string().min(1, 'Search query is required').max(200, 'Search query too long'),
-  type: z.enum(['clubs', 'courses', 'users', 'all']).default('all'),
+  type: z.enum(['clubs', 'courses', 'users', 'all'] as [string, ...string[]]).default('all'),
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(50).default(10),
 });
 
 export const SearchAnalyticsSchema = z.object({
   searchTerm: z.string().min(1).max(200),
-  searchType: z.enum(['clubs', 'courses', 'users', 'all']),
+  searchType: z.enum(['clubs', 'courses', 'users', 'all'] as [string, ...string[]]),
   resultsCount: z.number().min(0),
   userId: z.string().cuid().optional(),
   userMajor: z.string().optional(),
@@ -131,7 +131,7 @@ export const ClubAnalyticsUpdateSchema = z.object({
   joinCount: z.number().min(0).optional(),
   searchCount: z.number().min(0).optional(),
   recommendationShown: z.number().min(0).optional(),
-  memberDemographics: z.record(z.any()).optional(),
+  memberDemographics: z.record(z.string(), z.any()).optional(),
 });
 
 export const StudyGroupAnalyticsUpdateSchema = z.object({
@@ -146,7 +146,7 @@ export const StudyGroupAnalyticsUpdateSchema = z.object({
 // 🎨 Recommendation Schemas
 export const RecommendationQuerySchema = z.object({
   userId: z.string().cuid('Invalid user ID'),
-  type: z.enum(['clubs', 'courses', 'colleges']),
+  type: z.enum(['clubs', 'courses', 'colleges'] as [string, ...string[]]),
   limit: z.coerce.number().min(1).max(20).default(6),
 });
 
@@ -173,7 +173,7 @@ export const RateLimitSchema = z.object({
 
 // 🔐 Authentication Schemas
 export const AuthCallbackSchema = z.object({
-  provider: z.enum(['github', 'google']),
+  provider: z.enum(['github', 'google'] as [string, ...string[]]),
   profile: z.object({
     id: z.string(),
     email: z.string().email(),
