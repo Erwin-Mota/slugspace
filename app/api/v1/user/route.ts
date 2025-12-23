@@ -64,25 +64,35 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const { name, major, year, interests, college } = body;
     
+    // Build update data object, only including provided fields
+    const updateData: any = {
+      updatedAt: new Date(),
+    };
+    
+    if (name !== undefined) updateData.name = name;
+    if (major !== undefined) updateData.major = major;
+    if (year !== undefined) updateData.year = year;
+    if (interests !== undefined) updateData.interests = interests;
+    if (college !== undefined) updateData.college = college;
+    
     const updatedUser = await withRetry(() => prisma.user.update({
       where: { id: user.id },
-      data: {
-        ...(name && { name }),
-        ...(major && { major }),
-        ...(year && { year }),
-        ...(interests && { interests }),
-        ...(college && { college }),
-        updatedAt: new Date(),
-      },
+      data: updateData,
     }));
     
     return createResponse(updatedUser);
     
   } catch (error: any) {
+    console.error('Update user error:', error);
+    console.error('Error details:', {
+      code: error.code,
+      message: error.message,
+      meta: error.meta,
+    });
+    
     if (error.code?.startsWith('P')) {
       return handleDatabaseError(error);
     }
-    console.error('Update user error:', error);
-    return createErrorResponse('Failed to update user', 500);
+    return createErrorResponse(error.message || 'Failed to update user', 500);
   }
 }
