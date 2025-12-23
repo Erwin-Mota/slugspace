@@ -63,10 +63,8 @@ export const authOptions: NextAuthOptions = {
       }
       
       // Debug logging
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Session callback - token:', { sub: token?.sub, email: token?.email });
-        console.log('Session callback - session user:', session.user);
-      }
+      console.log('[Session Callback] Token:', { sub: token?.sub, email: token?.email, name: token?.name });
+      console.log('[Session Callback] Session user:', session.user);
       
       return session;
     },
@@ -74,6 +72,7 @@ export const authOptions: NextAuthOptions = {
       // Initial sign in - user object is available (created by PrismaAdapter)
       // The adapter creates the user in DB and passes it here
       if (user) {
+        console.log('[JWT Callback] User object:', { id: user.id, email: user.email, name: user.name });
         token.sub = user.id; // This is the database user ID from adapter
         token.email = user.email || token.email;
         token.name = user.name || token.name;
@@ -81,10 +80,12 @@ export const authOptions: NextAuthOptions = {
       }
       // Fallback: Update from profile if user object isn't available
       if (profile && !token.sub) {
+        console.log('[JWT Callback] Using profile (no user object):', { email: profile.email, name: profile.name });
         token.email = profile.email || token.email;
         token.name = profile.name || token.name;
         token.picture = (profile as any).picture || (profile as any).image || token.picture;
       }
+      console.log('[JWT Callback] Returning token:', { sub: token.sub, email: token.email });
       return token;
     },
   },
@@ -100,6 +101,6 @@ export const authOptions: NextAuthOptions = {
   },
   useSecureCookies: process.env.NODE_ENV === 'production',
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === 'development', // Enable debug in dev
+  debug: true, // Enable debug to see what's happening
 };
 
