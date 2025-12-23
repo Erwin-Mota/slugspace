@@ -4,7 +4,7 @@ import { rateLimitStore } from './rate-limiter';
 import { sanitizeInput } from './sanitizer';
 import { auditLog } from './audit-logger';
 
-// 🛡️ Security Middleware for SlugConnect
+// 🛡️ Security Middleware for SlugSpace
 // Comprehensive security layer for all API endpoints
 
 // 🔐 Security Headers Middleware

@@ -1,4 +1,4 @@
-// 🛡️ Security Configuration for SlugConnect
+// 🛡️ Security Configuration for SlugSpace
 // Centralized security settings and policies
 
 export const SECURITY_CONFIG = {
@@ -109,7 +109,7 @@ export const SECURITY_CONFIG = {
       ANALYTICS: 7200, // 2 hours
       USER_DATA: 1800, // 30 minutes
     },
-    CACHE_KEY_PREFIX: 'slugconnect:',
+    CACHE_KEY_PREFIX: 'slugspace:',
     CACHE_MAX_KEYS: 10000,
   },
 
@@ -134,7 +134,7 @@ export const SECURITY_CONFIG = {
 
   // 📧 Email Security
   EMAIL: {
-    FROM_ADDRESS: process.env.EMAIL_FROM || 'noreply@slugconnect.com',
+    FROM_ADDRESS: process.env.EMAIL_FROM || 'noreply@slugspace.com',
     REPLY_TO: process.env.EMAIL_REPLY_TO,
     MAX_RECIPIENTS: 100,
     RATE_LIMIT: { windowMs: 3600000, maxRequests: 10 }, // 10 emails per hour

@@ -1,4 +1,4 @@
-// 🚫 Rate Limiting System for SlugConnect
+// 🚫 Rate Limiting System for SlugSpace
 // Implements sliding window rate limiting with Redis support
 
 import Redis from 'ioredis';

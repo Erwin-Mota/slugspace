@@ -47,7 +47,7 @@ export default function LoginPage() {
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
               <FaHome className="text-4xl text-yellow-400 mr-3" />
-              <h1 className="text-3xl font-bold text-white">SlugConnect</h1>
+              <h1 className="text-3xl font-bold text-white">SlugSpace</h1>
             </div>
             <p className="text-blue-100 text-lg">Welcome to your UCSC community hub</p>
           </div>
@@ -95,13 +95,6 @@ export default function LoginPage() {
             >
               ← Back to Home
             </Link>
-          </div>
-
-          {/* 📝 Info */}
-          <div className="mt-6 p-4 bg-blue-500/10 rounded-xl border border-blue-400/20">
-            <p className="text-blue-100 text-sm text-center">
-              <strong>Note:</strong> For production, only UCSC email addresses (@ucsc.edu) will be accepted.
-            </p>
           </div>
         </div>
       </div>

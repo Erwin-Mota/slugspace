@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# 🐌 SlugConnect Setup Script
+# 🐌 SlugSpace Setup Script
 # Colors for beautiful output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -22,7 +22,7 @@ cat << "EOF"
                                                             
 EOF
 echo -e "${NC}"
-echo -e "${BLUE}🚀 Welcome to SlugConnect Setup!${NC}"
+echo -e "${BLUE}🚀 Welcome to SlugSpace Setup!${NC}"
 echo -e "${CYAN}This script will help you get your UCSC community platform running.${NC}\n"
 
 # Check if Node.js is installed
@@ -86,7 +86,7 @@ echo -e "${PURPLE}🔐 GitHub OAuth Setup Instructions:${NC}"
 echo -e "${CYAN}1. Go to ${BLUE}https://github.com/settings/developers${NC}"
 echo -e "${CYAN}2. Click 'New OAuth App'${NC}"
 echo -e "${CYAN}3. Fill in the form:${NC}"
-echo -e "${CYAN}   - Application name: ${YELLOW}SlugConnect${NC}"
+echo -e "${CYAN}   - Application name: ${YELLOW}SlugSpace${NC}"
 echo -e "${CYAN}   - Homepage URL: ${YELLOW}http://localhost:3000${NC}"
 echo -e "${CYAN}   - Authorization callback URL: ${YELLOW}http://localhost:3000/api/auth/callback/github${NC}"
 echo -e "${CYAN}4. Click 'Register application'${NC}"
@@ -95,10 +95,10 @@ echo -e "${CYAN}5. Copy Client ID and Client Secret to .env.local${NC}\n"
 # Database setup instructions
 echo -e "${PURPLE}🗄️  Database Setup Instructions:${NC}"
 echo -e "${CYAN}1. Install PostgreSQL${NC}"
-echo -e "${CYAN}2. Create a new database: ${YELLOW}slugconnect${NC}"
+echo -e "${CYAN}2. Create a new database: ${YELLOW}slugspace${NC}"
 echo -e "${CYAN}3. Update DATABASE_URL in .env.local${NC}"
 echo -e "${CYAN}4. Run: ${YELLOW}npx prisma db push${NC}\n"
 
-echo -e "${GREEN}🎉 Setup complete! Your SlugConnect platform is ready to configure.${NC}"
+echo -e "${GREEN}🎉 Setup complete! Your SlugSpace platform is ready to configure.${NC}"
 echo -e "${BLUE}💡 Need help? Check the README.md file for detailed instructions.${NC}"
 echo -e "${YELLOW}🚀 Happy coding!${NC}\n" 

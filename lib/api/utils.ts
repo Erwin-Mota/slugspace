@@ -28,6 +28,66 @@ export function createErrorResponse(message: string, status: number = 400) {
   return NextResponse.json({ error: message }, { status });
 }
 
+// Database error handler - converts Prisma errors to user-friendly messages
+export function handleDatabaseError(error: any): NextResponse {
+  console.error('Database error:', error);
+  
+  // Connection errors
+  if (error.code === 'P1001' || error.message?.includes('connection')) {
+    return createErrorResponse('Database connection error. Please try again in a moment.', 503);
+  }
+  
+  // Timeout errors
+  if (error.code === 'P1008' || error.message?.includes('timeout')) {
+    return createErrorResponse('Request timed out. Please try again.', 504);
+  }
+  
+  // Unique constraint violations
+  if (error.code === 'P2002') {
+    return createErrorResponse('This item already exists.', 409);
+  }
+  
+  // Record not found
+  if (error.code === 'P2025') {
+    return createErrorResponse('Record not found.', 404);
+  }
+  
+  // Generic database error
+  return createErrorResponse('An error occurred. Please try again.', 500);
+}
+
+// Retry wrapper for database operations
+export async function withRetry<T>(
+  operation: () => Promise<T>,
+  maxRetries: number = 3,
+  delay: number = 1000
+): Promise<T> {
+  let lastError: any;
+  
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await operation();
+    } catch (error: any) {
+      lastError = error;
+      
+      // Don't retry on certain errors
+      if (error.code === 'P2002' || error.code === 'P2025') {
+        throw error;
+      }
+      
+      // Retry on connection/timeout errors
+      if (error.code === 'P1001' || error.code === 'P1008' || i < maxRetries - 1) {
+        await new Promise(resolve => setTimeout(resolve, delay * (i + 1)));
+        continue;
+      }
+      
+      throw error;
+    }
+  }
+  
+  throw lastError;
+}
+
 // Pagination helper
 export function getPaginationParams(request: NextRequest) {
   const { searchParams } = new URL(request.url);

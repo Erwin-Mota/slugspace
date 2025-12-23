@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
-import { FaGraduationCap, FaUsers, FaHeart, FaArrowRight, FaHome, FaSpinner, FaSignOutAlt, FaChartBar, FaDatabase } from "react-icons/fa";
+import { FaGraduationCap, FaUsers, FaHeart, FaArrowRight, FaHome, FaSpinner, FaSignOutAlt, FaChartBar } from "react-icons/fa";
 
 export default function HomePage() {
   const { data: session } = useSession();
@@ -45,7 +45,7 @@ export default function HomePage() {
           <div className="flex items-center space-x-3">
             <FaHome className="text-4xl text-yellow-400" />
             <div>
-              <h1 className="text-2xl font-bold text-white">SlugConnect</h1>
+              <h1 className="text-2xl font-bold text-white">SlugSpace</h1>
               <p className="text-blue-100 text-sm">Your UCSC Community Hub</p>
             </div>
           </div>
@@ -91,21 +91,12 @@ export default function HomePage() {
         {/* 🏆 Hero Section */}
         <div className="text-center mb-16">
           <h2 className="text-5xl md:text-6xl font-bold text-white mb-6">
-            Welcome to SlugConnect
+            Welcome to SlugSpace
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
             Connect with fellow UCSC students, join study groups, discover campus clubs, 
             and find your perfect college match. Build your community today!
           </p>
-          
-          {/* Database Status */}
-          <div className="bg-green-500/10 backdrop-blur-lg rounded-2xl p-4 border border-green-400/20 max-w-md mx-auto mb-8">
-            <div className="flex items-center justify-center gap-2 text-green-300">
-              <FaDatabase className="text-lg" />
-              <span className="font-semibold">Database Connected</span>
-            </div>
-            <p className="text-green-100 text-sm mt-1">All data is now stored securely in PostgreSQL</p>
-          </div>
           
           {!session && (
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -196,7 +187,7 @@ export default function HomePage() {
             <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
               <h3 className="text-2xl font-bold text-white mb-4">Ready to Connect?</h3>
               <p className="text-blue-100 mb-6">
-                Join thousands of UCSC students building their community on SlugConnect
+                Join the UCSC community and build connections on SlugSpace
               </p>
               <Link
                 href="/login"
@@ -213,7 +204,7 @@ export default function HomePage() {
         {session && (
           <div className="text-center mt-16">
             <div className="bg-green-500/10 backdrop-blur-lg rounded-2xl p-8 border border-green-400/20">
-              <h3 className="text-2xl font-bold text-white mb-4">Welcome to SlugConnect!</h3>
+              <h3 className="text-2xl font-bold text-white mb-4">Welcome to SlugSpace!</h3>
               <p className="text-green-100 mb-6">
                 You&apos;re now connected to the UCSC community. Explore all our features above!
               </p>

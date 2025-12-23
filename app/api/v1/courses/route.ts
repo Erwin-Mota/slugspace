@@ -6,7 +6,9 @@ import {
   createResponse, 
   createErrorResponse,
   trackAnalytics,
-  getAuthenticatedUser
+  getAuthenticatedUser,
+  handleDatabaseError,
+  withRetry
 } from '@/lib/api/utils';
 
 // GET /api/v1/courses - Get all courses with search, filter, and pagination
@@ -44,9 +46,9 @@ export async function GET(request: NextRequest) {
     const orderBy: any = {};
     orderBy[sortBy] = sortOrder;
     
-    // Get courses with pagination
+    // Get courses with pagination (with retry)
     const [courses, total] = await Promise.all([
-      prisma.course.findMany({
+      withRetry(() => prisma.course.findMany({
         where,
         orderBy,
         skip,
@@ -57,8 +59,8 @@ export async function GET(request: NextRequest) {
             select: { studyGroups: true },
           },
         },
-      }),
-      prisma.course.count({ where }),
+      })),
+      withRetry(() => prisma.course.count({ where })),
     ]);
     
     // Track analytics
@@ -80,7 +82,10 @@ export async function GET(request: NextRequest) {
       },
     });
     
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code?.startsWith('P')) {
+      return handleDatabaseError(error);
+    }
     console.error('Courses API error:', error);
     return createErrorResponse('Failed to fetch courses', 500);
   }
@@ -101,7 +106,7 @@ export async function POST(request: NextRequest) {
       return createErrorResponse('Missing required fields', 400);
     }
     
-    const course = await prisma.course.create({
+    const course = await withRetry(() => prisma.course.create({
       data: {
         code,
         name,
@@ -110,16 +115,24 @@ export async function POST(request: NextRequest) {
         units: units || 0,
         prerequisites: prerequisites || [],
       },
-    });
+    }));
     
-    // Create analytics entry
-    await prisma.courseAnalytics.create({
-      data: { courseId: course.id },
-    });
+    // Create analytics entry (non-critical)
+    try {
+      await prisma.courseAnalytics.create({
+        data: { courseId: course.id },
+      });
+    } catch (analyticsError) {
+      console.error('Analytics creation failed:', analyticsError);
+      // Continue anyway
+    }
     
     return createResponse(course, 201);
     
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code?.startsWith('P')) {
+      return handleDatabaseError(error);
+    }
     console.error('Create course error:', error);
     return createErrorResponse('Failed to create course', 500);
   }

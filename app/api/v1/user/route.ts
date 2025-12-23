@@ -3,7 +3,9 @@ import { prisma } from '@/lib/prisma';
 import { 
   createResponse, 
   createErrorResponse,
-  getAuthenticatedUser
+  getAuthenticatedUser,
+  handleDatabaseError,
+  withRetry
 } from '@/lib/api/utils';
 
 // GET /api/v1/user - Get current user profile
@@ -14,8 +16,8 @@ export async function GET(request: NextRequest) {
       return createErrorResponse('Unauthorized', 401);
     }
     
-    // Get user with all related data
-    const userWithData = await prisma.user.findUnique({
+    // Get user with all related data (with retry)
+    const userWithData = await withRetry(() => prisma.user.findUnique({
       where: { id: user.id },
       include: {
         userAnalytics: true,
@@ -38,11 +40,14 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-    });
+    }));
     
     return createResponse(userWithData);
     
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code?.startsWith('P')) {
+      return handleDatabaseError(error);
+    }
     console.error('User API error:', error);
     return createErrorResponse('Failed to fetch user data', 500);
   }
@@ -59,7 +64,7 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const { name, major, year, interests, college } = body;
     
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await withRetry(() => prisma.user.update({
       where: { id: user.id },
       data: {
         ...(name && { name }),
@@ -69,11 +74,14 @@ export async function PUT(request: NextRequest) {
         ...(college && { college }),
         updatedAt: new Date(),
       },
-    });
+    }));
     
     return createResponse(updatedUser);
     
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code?.startsWith('P')) {
+      return handleDatabaseError(error);
+    }
     console.error('Update user error:', error);
     return createErrorResponse('Failed to update user', 500);
   }

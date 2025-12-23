@@ -1,4 +1,4 @@
-// 🧹 Input Sanitization for SlugConnect
+// 🧹 Input Sanitization for SlugSpace
 // Comprehensive XSS and injection attack prevention
 
 import DOMPurify from 'isomorphic-dompurify';

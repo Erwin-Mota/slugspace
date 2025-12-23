@@ -6,7 +6,9 @@ import {
   createResponse, 
   createErrorResponse,
   trackAnalytics,
-  getAuthenticatedUser
+  getAuthenticatedUser,
+  handleDatabaseError,
+  withRetry
 } from '@/lib/api/utils';
 
 // GET /api/v1/clubs - Get all clubs with search, filter, and pagination
@@ -43,9 +45,9 @@ export async function GET(request: NextRequest) {
     const orderBy: any = {};
     orderBy[sortBy] = sortOrder;
     
-    // Get clubs with pagination
+    // Get clubs with pagination (with retry on connection errors)
     const [clubs, total] = await Promise.all([
-      prisma.club.findMany({
+      withRetry(() => prisma.club.findMany({
         where,
         orderBy,
         skip,
@@ -56,8 +58,8 @@ export async function GET(request: NextRequest) {
             select: { members: true },
           },
         },
-      }),
-      prisma.club.count({ where }),
+      })),
+      withRetry(() => prisma.club.count({ where })),
     ]);
     
     // Track analytics
@@ -79,7 +81,10 @@ export async function GET(request: NextRequest) {
       },
     });
     
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code?.startsWith('P')) {
+      return handleDatabaseError(error);
+    }
     console.error('Clubs API error:', error);
     return createErrorResponse('Failed to fetch clubs', 500);
   }
@@ -100,7 +105,7 @@ export async function POST(request: NextRequest) {
       return createErrorResponse('Missing required fields', 400);
     }
     
-    const club = await prisma.club.create({
+    const club = await withRetry(() => prisma.club.create({
       data: {
         name,
         description,
@@ -109,16 +114,24 @@ export async function POST(request: NextRequest) {
         meetingLocation,
         contactEmail,
       },
-    });
+    }));
     
-    // Create analytics entry
-    await prisma.clubAnalytics.create({
-      data: { clubId: club.id },
-    });
+    // Create analytics entry (don't fail if this fails)
+    try {
+      await prisma.clubAnalytics.create({
+        data: { clubId: club.id },
+      });
+    } catch (analyticsError) {
+      console.error('Analytics creation failed:', analyticsError);
+      // Continue anyway - analytics is not critical
+    }
     
     return createResponse(club, 201);
     
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code?.startsWith('P')) {
+      return handleDatabaseError(error);
+    }
     console.error('Create club error:', error);
     return createErrorResponse('Failed to create club', 500);
   }

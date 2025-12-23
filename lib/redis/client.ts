@@ -1,6 +1,6 @@
 import Redis from 'ioredis';
 
-// 🚀 Redis Client Configuration for SlugConnect
+// 🚀 Redis Client Configuration for SlugSpace
 // Provides high-performance caching and session storage
 
 let redis: Redis | null = null;

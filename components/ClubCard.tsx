@@ -32,9 +32,15 @@ export default function ClubCard({ club, isJoined, onToggle, isRecommended = fal
   const [isAnimating, setIsAnimating] = useState(false);
 
   const handleToggle = () => {
-    setIsAnimating(true);
-    onToggle();
-    setTimeout(() => setIsAnimating(false), 300);
+    if (isJoined) {
+      // If already joined, allow leaving via the toggle function
+      setIsAnimating(true);
+      onToggle();
+      setTimeout(() => setIsAnimating(false), 300);
+    } else {
+      // If not joined, redirect to UCSC clubs page
+      window.open('https://getinvolved.ucsc.edu/student-organizations/join/', '_blank');
+    }
   };
 
   const getCategoryColor = (category: string) => {

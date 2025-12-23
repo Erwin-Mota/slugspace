@@ -6,7 +6,7 @@ import Providers from './providers'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'SlugConnect - Your UCSC Community Hub',
+  title: 'SlugSpace - Your UCSC Community Hub',
   description: 'Connect with UCSC students, join study groups, discover campus clubs, and find your perfect college match.',
 }
 

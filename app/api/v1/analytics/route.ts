@@ -3,7 +3,9 @@ import { prisma } from '@/lib/prisma';
 import { 
   createResponse, 
   createErrorResponse,
-  getAuthenticatedUser
+  getAuthenticatedUser,
+  handleDatabaseError,
+  withRetry
 } from '@/lib/api/utils';
 
 // GET /api/v1/analytics - Get analytics dashboard data
@@ -14,7 +16,7 @@ export async function GET(request: NextRequest) {
       return createErrorResponse('Unauthorized', 401);
     }
     
-    // Get overview statistics
+    // Get overview statistics (with retry for resilience)
     const [
       totalUsers,
       totalClubs,
@@ -26,13 +28,13 @@ export async function GET(request: NextRequest) {
       popularClubs,
       popularCourses,
     ] = await Promise.all([
-      prisma.user.count(),
-      prisma.club.count(),
-      prisma.course.count(),
-      prisma.college.count(),
-      prisma.clubMember.count(),
-      prisma.studyGroupMember.count(),
-      prisma.user.findMany({
+      withRetry(() => prisma.user.count()),
+      withRetry(() => prisma.club.count()),
+      withRetry(() => prisma.course.count()),
+      withRetry(() => prisma.college.count()),
+      withRetry(() => prisma.clubMember.count()),
+      withRetry(() => prisma.studyGroupMember.count()),
+      withRetry(() => prisma.user.findMany({
         take: 5,
         orderBy: { createdAt: 'desc' },
         select: {
@@ -41,8 +43,8 @@ export async function GET(request: NextRequest) {
           email: true,
           createdAt: true,
         },
-      }),
-      prisma.club.findMany({
+      })),
+      withRetry(() => prisma.club.findMany({
         take: 5,
         orderBy: { memberCount: 'desc' },
         select: {
@@ -51,8 +53,8 @@ export async function GET(request: NextRequest) {
           memberCount: true,
           category: true,
         },
-      }),
-      prisma.course.findMany({
+      })),
+      withRetry(() => prisma.course.findMany({
         take: 5,
         orderBy: { studentCount: 'desc' },
         select: {
@@ -61,7 +63,7 @@ export async function GET(request: NextRequest) {
           name: true,
           studentCount: true,
         },
-      }),
+      })),
     ]);
     
     return createResponse({
@@ -78,7 +80,10 @@ export async function GET(request: NextRequest) {
       popularCourses,
     });
     
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code?.startsWith('P')) {
+      return handleDatabaseError(error);
+    }
     console.error('Analytics API error:', error);
     return createErrorResponse('Failed to fetch analytics', 500);
   }

@@ -4,7 +4,9 @@ import {
   createResponse, 
   createErrorResponse,
   getAuthenticatedUser,
-  trackAnalytics
+  trackAnalytics,
+  handleDatabaseError,
+  withRetry
 } from '@/lib/api/utils';
 
 // POST /api/v1/study-groups/join - Join a study group
@@ -23,47 +25,46 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user has already joined 5 study groups
-    const currentMemberships = await prisma.studyGroupMember.count({
+    const currentMemberships = await withRetry(() => prisma.studyGroupMember.count({
       where: { userId: user.id }
-    });
+    }));
 
     if (currentMemberships >= 5) {
       return createErrorResponse('You can only join up to 5 study groups', 400);
     }
 
     // Find or create the course
-    let course = await prisma.course.findUnique({
+    let course = await withRetry(() => prisma.course.findUnique({
       where: { code: courseCode }
-    });
+    }));
 
     if (!course) {
       // Course doesn't exist in database, create it
-      // We'll need basic info - for now just create with code
-      course = await prisma.course.create({
+      course = await withRetry(() => prisma.course.create({
         data: {
           code: courseCode,
           name: courseCode, // Will be updated when we have full course data
           isActive: true,
         }
-      });
+      }));
     }
 
     // Check if user is already a member
-    const existingMembership = await prisma.studyGroupMember.findUnique({
+    const existingMembership = await withRetry(() => prisma.studyGroupMember.findUnique({
       where: {
         userId_courseId: {
           userId: user.id,
           courseId: course.id
         }
       }
-    });
+    }));
 
     if (existingMembership) {
       return createErrorResponse('You are already a member of this study group', 400);
     }
 
     // Create the membership
-    const membership = await prisma.studyGroupMember.create({
+    const membership = await withRetry(() => prisma.studyGroupMember.create({
       data: {
         userId: user.id,
         courseId: course.id,
@@ -79,20 +80,30 @@ export async function POST(request: NextRequest) {
           }
         }
       }
-    });
+    }));
 
-    // Update course student count
-    await prisma.course.update({
-      where: { id: course.id },
-      data: {
-        studentCount: {
-          increment: 1
+    // Update course student count (non-critical, don't fail if this fails)
+    try {
+      await prisma.course.update({
+        where: { id: course.id },
+        data: {
+          studentCount: {
+            increment: 1
+          }
         }
-      }
-    });
+      });
+    } catch (updateError) {
+      console.error('Failed to update course count:', updateError);
+      // Continue anyway
+    }
 
-    // Track analytics
-    await trackAnalytics('course_join', { courseCode }, user.id);
+    // Track analytics (non-critical)
+    try {
+      await trackAnalytics('course_join', { courseCode }, user.id);
+    } catch (analyticsError) {
+      console.error('Analytics tracking failed:', analyticsError);
+      // Continue anyway
+    }
 
     return createResponse({
       membership,
@@ -100,10 +111,10 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('Join study group error:', error);
-    if (error.code === 'P2002') {
-      return createErrorResponse('You are already a member of this study group', 400);
+    if (error.code?.startsWith('P')) {
+      return handleDatabaseError(error);
     }
+    console.error('Join study group error:', error);
     return createErrorResponse('Failed to join study group', 500);
   }
 }

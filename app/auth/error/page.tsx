@@ -12,7 +12,7 @@ export default function AuthErrorPage() {
   const getErrorMessage = (error: string | null) => {
     switch (error) {
       case "AccessDenied":
-        return "Access Denied - Only UCSC students can use SlugConnect";
+        return "Access Denied";
       case "Configuration":
         return "Server Configuration Error - Please try again later";
       case "Verification":
@@ -25,7 +25,7 @@ export default function AuthErrorPage() {
   const getErrorDescription = (error: string | null) => {
     switch (error) {
       case "AccessDenied":
-        return "SlugConnect is exclusively for UCSC students with @ucsc.edu email addresses.";
+        return "Your access request was denied. Please try again or contact support if the problem persists.";
       case "Configuration":
         return "Our authentication system is experiencing technical difficulties.";
       case "Verification":
@@ -88,9 +88,9 @@ export default function AuthErrorPage() {
           <div className="mt-6 p-4 bg-white/5 rounded-xl border border-white/10">
             <h3 className="text-yellow-300 font-semibold mb-2">💡 Need Help?</h3>
             <ul className="text-red-100 text-sm text-left space-y-1">
-              <li>• Make sure you&apos;re using your @ucsc.edu email</li>
               <li>• Check your internet connection</li>
               <li>• Try clearing your browser cookies</li>
+              <li>• Make sure you&apos;re using a valid email address</li>
               <li>• Contact support if the problem persists</li>
             </ul>
           </div>

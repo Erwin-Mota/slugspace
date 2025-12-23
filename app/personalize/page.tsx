@@ -11,6 +11,8 @@ export default function PersonalizePage() {
   const [major, setMajor] = useState("");
   const [year, setYear] = useState("");
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Load saved preferences on mount
   useEffect(() => {
@@ -290,30 +292,44 @@ export default function PersonalizePage() {
   };
 
   const handleSubmit = async () => {
-    // Save preferences to localStorage (and eventually API)
-    const preferences = {
-      interests,
-      major,
-      year,
-      updatedAt: new Date().toISOString(),
-    };
+    setIsSaving(true);
+    setError(null);
     
-    localStorage.setItem('userPreferences', JSON.stringify(preferences));
-    
-    // TODO: Save to database via API when user is logged in
-    if (session?.user?.id) {
-      try {
-        // await fetch('/api/v1/user/preferences', {
-        //   method: 'PUT',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(preferences),
-        // });
-      } catch (err) {
-        console.error('Error saving preferences to API:', err);
+    try {
+      // Save preferences to localStorage as backup
+      const preferences = {
+        interests,
+        major,
+        year,
+        updatedAt: new Date().toISOString(),
+      };
+      
+      localStorage.setItem('userPreferences', JSON.stringify(preferences));
+      
+      // Save to database via API when user is logged in
+      if (session?.user?.id) {
+        const response = await fetch('/api/v1/user', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            interests,
+            major,
+            year,
+          }),
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || 'Failed to save preferences');
+        }
       }
+      
+      router.push("/");
+    } catch (err: any) {
+      console.error('Error saving preferences:', err);
+      setError(err.message || 'Failed to save preferences. Please try again.');
+      setIsSaving(false);
     }
-    
-    router.push("/");
   };
 
 
@@ -443,12 +459,20 @@ export default function PersonalizePage() {
             )}
           </div>
 
+          {/* Error message */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {error}
+            </div>
+          )}
+
           {/* Submit */}
           <button
             onClick={handleSubmit}
-            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-4 px-8 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg"
+            disabled={isSaving}
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold py-4 px-8 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Save & Continue
+            {isSaving ? 'Saving...' : 'Save & Continue'}
           </button>
         </div>
       </div>

@@ -1,4 +1,4 @@
-// 📊 Security Audit Logging for SlugConnect
+// 📊 Security Audit Logging for SlugSpace
 // Comprehensive logging system for security events and compliance
 
 import { PrismaClient } from '@prisma/client';
@@ -141,29 +141,22 @@ class AuditLogger {
     this.logQueue = [];
 
     try {
-      // In a real implementation, you would save to database
-      // For now, we'll just log to console
-      console.log(`📊 Flushing ${logsToFlush.length} audit logs`);
-      
-      // TODO: Implement database storage
-      // await prisma.auditLog.createMany({
-      //   data: logsToFlush.map(log => ({
-      //     eventType: log.eventType,
-      //     userId: log.userId,
-      //     sessionId: log.sessionId,
-      //     ipAddress: log.ipAddress,
-      //     userAgent: log.userAgent,
-      //     endpoint: log.endpoint,
-      //     method: log.method,
-      //     statusCode: log.statusCode,
-      //     requestBody: log.requestBody,
-      //     responseBody: log.responseBody,
-      //     errorMessage: log.errorMessage,
-      //     metadata: log.metadata,
-      //     timestamp: log.timestamp,
-      //     severity: log.severity,
-      //   }))
-      // });
+      // Log to console for now (database storage can be added later if needed)
+      if (logsToFlush.length > 0) {
+        console.log(`📊 Flushing ${logsToFlush.length} audit logs`);
+        // Log critical events to console for monitoring
+        logsToFlush
+          .filter(log => log.severity === 'CRITICAL' || log.severity === 'HIGH')
+          .forEach(log => {
+            console.error('🚨 Security Event:', {
+              type: log.eventType,
+              severity: log.severity,
+              userId: log.userId,
+              ip: log.ipAddress,
+              endpoint: log.endpoint,
+            });
+          });
+      }
 
     } catch (error) {
       console.error('❌ Failed to flush audit logs:', error);
