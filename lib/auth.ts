@@ -35,6 +35,11 @@ export const authOptions: NextAuthOptions = {
   providers,
   callbacks: {
     async signIn({ profile, account, user }) {
+      // Debug logging
+      console.log('[SignIn Callback] User:', user ? { id: user.id, email: user.email } : 'NO USER');
+      console.log('[SignIn Callback] Account:', account ? { provider: account.provider, providerAccountId: account.providerAccountId } : 'NO ACCOUNT');
+      console.log('[SignIn Callback] Profile:', profile ? { email: (profile as any).email } : 'NO PROFILE');
+      
       // Allow sign in
       return true;
     },
