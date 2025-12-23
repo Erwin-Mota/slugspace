@@ -4,20 +4,32 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import type { NextAuthOptions } from "next-auth";
 
+const providers = [];
+
+// Only add providers if credentials are available
+if (process.env.GITHUB_ID && process.env.GITHUB_SECRET) {
+  providers.push(
+    GitHub({
+      clientId: process.env.GITHUB_ID,
+      clientSecret: process.env.GITHUB_SECRET,
+      authorization: { params: { scope: 'read:user user:email' } },
+    })
+  );
+}
+
+if (process.env.GOOGLE_ID && process.env.GOOGLE_SECRET) {
+  providers.push(
+    Google({
+      clientId: process.env.GOOGLE_ID,
+      clientSecret: process.env.GOOGLE_SECRET,
+      authorization: { params: { scope: 'openid email profile' } },
+    })
+  );
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-  providers: [
-    GitHub({
-      clientId: process.env.GITHUB_ID!,
-      clientSecret: process.env.GITHUB_SECRET!,
-      authorization: { params: { scope: 'read:user user:email' } },
-    }),
-    Google({
-      clientId: process.env.GOOGLE_ID!,
-      clientSecret: process.env.GOOGLE_SECRET!,
-      authorization: { params: { scope: 'openid email profile' } },
-    }),
-  ],
+  providers,
   callbacks: {
     async signIn({ profile, account, user }) {
       // Auto-create user analytics entry on first login
