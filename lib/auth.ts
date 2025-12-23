@@ -47,8 +47,8 @@ export const authOptions: NextAuthOptions = {
       }
       return baseUrl;
     },
-    async session({ session, token, user }) {
-      // Attach user id and data to session
+    async session({ session, token }) {
+      // Attach user id and data to session from JWT token
       if (token?.sub) {
         (session.user as any).id = token.sub;
       }
@@ -61,6 +61,13 @@ export const authOptions: NextAuthOptions = {
       if (token?.picture) {
         session.user.image = token.picture as string;
       }
+      
+      // Debug logging
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Session callback - token:', { sub: token?.sub, email: token?.email });
+        console.log('Session callback - session user:', session.user);
+      }
+      
       return session;
     },
     async jwt({ token, user, account, profile }) {
