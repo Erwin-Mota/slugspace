@@ -1,38 +1,32 @@
 import { NextRequest } from 'next/server';
 import { 
   createResponse, 
-  createErrorResponse, 
-  validateQuery,
-  trackAnalytics
+  createErrorResponse
 } from '@/lib/api/utils';
 import { prisma } from '@/lib/prisma';
-import { RecommendationQuerySchema } from '@/lib/validations/schemas';
-import { cache } from '@/lib/redis/client';
 
 // 🎯 GET /api/v1/recommendations - Get personalized recommendations
 export async function GET(request: NextRequest) {
   try {
-    // Validate query parameters
-    const query = validateQuery(request, RecommendationQuerySchema);
-    const { userId, type, limit } = query;
-
-    // Check cache first
-    const cacheKey = `recommendations:${userId}:${type}:${limit}`;
-    const cachedRecommendations = await cache.get(cacheKey);
+    // Get and validate query parameters
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+    const type = searchParams.get('type') || 'clubs';
+    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') || '10', 10)));
     
-    if (cachedRecommendations) {
-      console.log(`🎯 Cache hit for recommendations: ${userId}`);
-      return createResponse(cachedRecommendations, 'Recommendations retrieved from cache');
+    if (!userId) {
+      return createErrorResponse('userId is required', 400);
     }
+
 
     // Get user profile for personalization
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        joinedClubs: {
+        clubMemberships: {
           include: { club: true }
         },
-        studyGroups: {
+        studyGroupMemberships: {
           include: { course: true }
         }
       }
@@ -52,17 +46,7 @@ export async function GET(request: NextRequest) {
       recommendations = await getCollegeRecommendations(user, limit);
     }
 
-    // Cache recommendations for 1 hour
-    await cache.set(cacheKey, recommendations, 3600);
-
-    // Track recommendation views
-    await trackAnalytics('recommendation_view', {
-      userId,
-      type,
-      recommendationCount: recommendations.length
-    });
-
-    return createResponse(recommendations, 'Recommendations generated successfully');
+    return createResponse(recommendations);
 
   } catch (error: any) {
     console.error('❌ Error generating recommendations:', error);
@@ -80,12 +64,12 @@ async function getClubRecommendations(user: any, limit: number) {
       id: { notIn: joinedClubIds }
     },
     include: {
-      analytics: true,
+      clubAnalytics: true,
       members: {
         take: 5,
         include: {
           user: {
-            select: { major: true, year: true, personalityTraits: true }
+            select: { major: true, year: true, interests: true }
           }
         }
       }
@@ -97,7 +81,7 @@ async function getClubRecommendations(user: any, limit: number) {
     let score = 0;
 
     // Interest matching
-    const userInterests = user.personalityTraits?.interests || [];
+    const userInterests = user.interests || [];
     const clubCategory = club.category.toLowerCase();
     
     // Check if user's interests align with club category
@@ -116,16 +100,17 @@ async function getClubRecommendations(user: any, limit: number) {
     }
 
     // College matching (same college students often join similar clubs)
-    const sameCollegeMembers = club.members.filter((member: any) => 
-      member.user.college === user.college
+    const sameCollegeMembers = (club.members || []).filter((member: any) => 
+      member.user?.college === user.college
     ).length;
     score += sameCollegeMembers * 0.1;
 
     // Popularity boost
-    score += (club.analytics?.popularityScore || 0) * 0.2;
+    const popularityScore = ((club.clubAnalytics?.joinCount || 0) + (club.clubAnalytics?.viewCount || 0));
+    score += popularityScore * 0.2;
 
     // Activity recency boost
-    score += (club.analytics?.joinCount || 0) * 0.05;
+    score += (club.clubAnalytics?.joinCount || 0) * 0.05;
 
     return {
       ...club,
@@ -143,8 +128,8 @@ async function getClubRecommendations(user: any, limit: number) {
       name: club.name,
       category: club.category,
       description: club.description,
-      memberCount: club.members.length,
-      popularityScore: club.analytics?.popularityScore || 0,
+      memberCount: (club.members || []).length,
+      popularityScore: ((club.clubAnalytics?.joinCount || 0) + (club.clubAnalytics?.viewCount || 0)),
       recommendationScore: club.recommendationScore,
       reasonsToJoin: club.reasonsToJoin,
       type: 'club'
@@ -154,14 +139,14 @@ async function getClubRecommendations(user: any, limit: number) {
 // 📚 Course recommendation algorithm
 async function getCourseRecommendations(user: any, limit: number) {
   // Get courses user is not already in study groups for
-  const joinedCourseIds = user.studyGroups.map((membership: any) => membership.course.id);
+  const joinedCourseIds = user.studyGroupMemberships?.map((membership: any) => membership.course.id) || [];
   
   const courses = await prisma.course.findMany({
     where: {
       id: { notIn: joinedCourseIds }
     },
     include: {
-      analytics: true,
+      courseAnalytics: true,
       studyGroups: {
         take: 5,
         include: {
@@ -184,19 +169,11 @@ async function getCourseRecommendations(user: any, limit: number) {
       score += 4;
     }
 
-    // Level matching (recommend appropriate level courses)
-    const userYear = user.year || '';
-    if ((userYear === 'freshman' || userYear === 'sophomore') && course.level === 'lower') {
-      score += 2;
-    } else if ((userYear === 'junior' || userYear === 'senior') && course.level === 'upper') {
-      score += 2;
-    }
-
     // Activity score boost
-    score += (course.analytics?.activityScore || 0) * 0.3;
+    score += ((course.courseAnalytics?.joinCount || 0) + (course.courseAnalytics?.viewCount || 0)) * 0.3;
 
     // Study group popularity
-    score += course.studyGroups.length * 0.1;
+    score += (course.studyGroups || []).length * 0.1;
 
     return {
       ...course,
@@ -213,11 +190,9 @@ async function getCourseRecommendations(user: any, limit: number) {
       id: course.id,
       code: course.code,
       name: course.name,
-      level: course.level,
-      credits: course.credits,
       description: course.description,
-      studyGroupCount: course.studyGroups.length,
-      activityScore: course.analytics?.activityScore || 0,
+      studyGroupCount: (course.studyGroups || []).length,
+      activityScore: ((course.courseAnalytics?.joinCount || 0) + (course.courseAnalytics?.viewCount || 0)),
       recommendationScore: course.recommendationScore,
       reasonsToJoin: course.reasonsToJoin,
       type: 'course'
@@ -234,11 +209,11 @@ async function getCollegeRecommendations(user: any, limit: number) {
     
     const userInterests = user.personalityTraits?.interests || [];
     const collegeName = college.name.toLowerCase();
-    const stereotype = college.stereotype?.toLowerCase() || '';
+    const stereotypes = (college.stereotypes || []).join(' ').toLowerCase();
 
     // Match interests with college stereotypes
     userInterests.forEach((interest: string) => {
-      if (stereotype.includes(interest.toLowerCase())) {
+      if (stereotypes.includes(interest.toLowerCase())) {
         score += 2;
       }
     });
@@ -246,7 +221,7 @@ async function getCollegeRecommendations(user: any, limit: number) {
     // Major-based matching
     const userMajor = user.major?.toLowerCase() || '';
     if (userMajor.includes('computer') || userMajor.includes('engineering')) {
-      if (collegeName.includes('crown') || stereotype.includes('stem')) {
+      if (collegeName.includes('crown') || stereotypes.includes('stem')) {
         score += 3;
       }
     }
@@ -264,8 +239,7 @@ async function getCollegeRecommendations(user: any, limit: number) {
     .map(college => ({
       id: college.id,
       name: college.name,
-      stereotype: college.stereotype,
-      housingQuality: college.housingQuality,
+      stereotypes: college.stereotypes,
       recommendationScore: college.recommendationScore,
       matchingReasons: college.matchingReasons,
       type: 'college'
@@ -280,11 +254,11 @@ function generateClubReasons(club: any, user: any, interestMatch: boolean): stri
     reasons.push('Matches your interests');
   }
   
-  if (club.analytics?.popularityScore > 5) {
+  if (club.clubAnalytics?.popularityScore && club.clubAnalytics.popularityScore > 5) {
     reasons.push('Popular among students');
   }
   
-  if (club.members.length > 20) {
+  if ((club.members || []).length > 20) {
     reasons.push('Active community');
   }
   
@@ -294,15 +268,11 @@ function generateClubReasons(club: any, user: any, interestMatch: boolean): stri
 function generateCourseReasons(course: any, user: any): string[] {
   const reasons = [];
   
-  if (course.level === 'lower' && (user.year === 'freshman' || user.year === 'sophomore')) {
-    reasons.push('Appropriate for your year');
-  }
-  
-  if (course.studyGroups.length > 3) {
+  if ((course.studyGroups || []).length > 3) {
     reasons.push('Active study groups');
   }
   
-  if (course.analytics?.activityScore > 5) {
+  if (course.courseAnalytics?.activityScore && course.courseAnalytics.activityScore > 5) {
     reasons.push('High student engagement');
   }
   
@@ -313,13 +283,13 @@ function generateCollegeReasons(college: any, user: any): string[] {
   const reasons = [];
   
   const userMajor = user.major?.toLowerCase() || '';
-  const stereotype = college.stereotype?.toLowerCase() || '';
+  const stereotypes = (college.stereotypes || []).join(' ').toLowerCase();
   
-  if (userMajor.includes('computer') && stereotype.includes('stem')) {
+  if (userMajor.includes('computer') && stereotypes.includes('stem')) {
     reasons.push('Great for STEM majors');
   }
   
-  if (stereotype.includes('creative') && user.personalityTraits?.interests?.includes('art')) {
+  if (stereotypes.includes('creative') && (user.interests || []).includes('art')) {
     reasons.push('Creative community');
   }
   

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -33,7 +33,7 @@ export default function StudyGroupsPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [userMembershipCount, setUserMembershipCount] = useState(0);
 
-  const fetchMembers = async (courseCode: string) => {
+  const fetchMembers = useCallback(async (courseCode: string) => {
     if (loadingMembers.has(courseCode)) return;
     
     setLoadingMembers(prev => new Set(prev).add(courseCode));
@@ -55,7 +55,7 @@ export default function StudyGroupsPage() {
         return newSet;
       });
     }
-  };
+  }, []);
 
   const fetchUserMemberships = useCallback(async () => {
     try {

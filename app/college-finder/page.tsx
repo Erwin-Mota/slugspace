@@ -180,7 +180,7 @@ export default function CollegeFinderPage() {
             {collegeMatches.length === 0 ? (
               <div className="text-center py-12">
                 <p className="text-lg text-gray-600 mb-4">
-                  We couldn't find perfect matches. Try adjusting your preferences!
+                  We couldn&apos;t find perfect matches. Try adjusting your preferences!
                 </p>
                 <button
                   onClick={resetQuiz}
