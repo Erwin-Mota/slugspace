@@ -15,6 +15,7 @@ export default function Providers({ children }: ProvidersProps) {
         // Refetch session after OAuth redirect
         refetchInterval={5 * 60} // Refetch every 5 minutes
         refetchOnWindowFocus={true} // Refetch when user returns to tab
+        refetchWhenOffline={false}
       >
         {children}
       </SessionProvider>

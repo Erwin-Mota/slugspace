@@ -64,15 +64,16 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async jwt({ token, user, account, profile }) {
-      // Initial sign in - user object is available
+      // Initial sign in - user object is available (created by PrismaAdapter)
+      // The adapter creates the user in DB and passes it here
       if (user) {
-        token.sub = user.id;
-        token.email = user.email;
-        token.name = user.name;
-        token.picture = user.image;
+        token.sub = user.id; // This is the database user ID from adapter
+        token.email = user.email || token.email;
+        token.name = user.name || token.name;
+        token.picture = user.image || token.picture;
       }
-      // Update from profile on OAuth sign in
-      if (profile) {
+      // Fallback: Update from profile if user object isn't available
+      if (profile && !token.sub) {
         token.email = profile.email || token.email;
         token.name = profile.name || token.name;
         token.picture = (profile as any).picture || (profile as any).image || token.picture;
