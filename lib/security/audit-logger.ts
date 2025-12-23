@@ -1,9 +1,10 @@
 // 📊 Security Audit Logging for SlugSpace
 // Comprehensive logging system for security events and compliance
 
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+// Lazy import Prisma to avoid connection during build
+function getPrisma() {
+  return require("@/lib/prisma").prisma;
+}
 
 // 🎯 Audit Event Types
 export enum AuditEventType {

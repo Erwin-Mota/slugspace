@@ -2,7 +2,15 @@
 // This endpoint receives CSP violation reports from browsers
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auditLogger } from '@/lib/security/audit-logger';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
+// Lazy import to avoid Prisma connection during build
+function getAuditLogger() {
+  return require('@/lib/security/audit-logger').auditLogger;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,7 +25,7 @@ export async function POST(request: NextRequest) {
                'unknown';
     
     // Log to audit system
-    await auditLogger.suspiciousActivity(
+    await getAuditLogger().suspiciousActivity(
       'CSP violation detected',
       ip,
       undefined,
