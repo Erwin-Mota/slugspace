@@ -12,19 +12,11 @@ export default function LoginPage() {
   const handleOAuthSignIn = async (provider: string) => {
     setIsLoading(provider);
     try {
-      const result = await signIn(provider, { 
+      // OAuth requires redirect: true to work
+      await signIn(provider, { 
         callbackUrl: "/",
-        redirect: false // Handle redirect manually to check for errors
+        redirect: true
       });
-      
-      if (result?.error) {
-        console.error('Sign in error:', result.error);
-        setIsLoading(null);
-        alert(`Sign in failed: ${result.error}`);
-      } else if (result?.ok) {
-        // Sign in successful, redirect manually
-        window.location.href = "/";
-      }
     } catch (error) {
       console.error(`Error signing in with ${provider}:`, error);
       setIsLoading(null);
