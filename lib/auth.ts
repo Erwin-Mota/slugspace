@@ -75,7 +75,7 @@ export const authOptions: NextAuthOptions = {
       if (profile) {
         token.email = profile.email || token.email;
         token.name = profile.name || token.name;
-        token.picture = profile.picture || profile.image || token.picture;
+        token.picture = (profile as any).picture || (profile as any).image || token.picture;
       }
       return token;
     },
