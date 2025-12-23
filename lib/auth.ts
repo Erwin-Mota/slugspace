@@ -1,8 +1,12 @@
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { prisma } from "@/lib/prisma";
 import type { NextAuthOptions } from "next-auth";
+
+// Lazy import prisma to avoid connection during build
+function getPrisma() {
+  return require("@/lib/prisma").prisma;
+}
 
 const providers = [];
 
@@ -28,7 +32,8 @@ if (process.env.GOOGLE_ID && process.env.GOOGLE_SECRET) {
 }
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  // Lazy adapter initialization - only connect when actually used
+  adapter: PrismaAdapter(getPrisma()),
   providers,
   callbacks: {
     async signIn({ profile, account, user }) {
@@ -36,7 +41,7 @@ export const authOptions: NextAuthOptions = {
       if (user?.id) {
         try {
           // Fire-and-forget to avoid blocking the OAuth flow
-          prisma.userAnalytics.upsert({
+          getPrisma().userAnalytics.upsert({
             where: { userId: user.id },
             update: {
               loginCount: { increment: 1 },
